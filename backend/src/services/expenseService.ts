@@ -6,12 +6,13 @@ import { expenseRepository } from '../repositories/expenseRepository.js';
  */
 export const expenseService = {
   
-  fetchAllExpenses: async (category?: string, search?: string) => {
-    return await expenseRepository.getAllExpenses(category, search);
+  fetchAllExpenses: async (userId: string, category?: string, search?: string) => {
+    return await expenseRepository.getAllExpenses(userId, category, search);
   },
 
-  createExpense: async (expenseData: { amount: number, category: string, description: string, expense_date: string }) => {
+  createExpense: async (userId: string, expenseData: { amount: number, category: string, description: string, expense_date: string }) => {
     return await expenseRepository.createExpense(
+      userId,
       expenseData.amount, 
       expenseData.category, 
       expenseData.description, 
@@ -19,25 +20,26 @@ export const expenseService = {
     );
   },
 
-  removeExpense: async (id: string) => {
-    return await expenseRepository.deleteExpense(id);
+  removeExpense: async (userId: string, id: string) => {
+    return await expenseRepository.deleteExpense(userId, id);
   },
 
-  getSummary: async () => {
-    const total = await expenseRepository.getTotalSpending();
-    const breakdown = await expenseRepository.getCategoryBreakdown();
+  getSummary: async (userId: string) => {
+    const total = await expenseRepository.getTotalSpending(userId);
+    const breakdown = await expenseRepository.getCategoryBreakdown(userId);
     
     return {
       total: parseFloat(total),
-      breakdown: breakdown.map(item => ({
+      breakdown: breakdown.map((item: any) => ({
         category: item.category,
         total: parseFloat(item.total)
       }))
     };
   },
 
-  modifyExpense: async (id: string, expenseData: { amount: number, category: string, description: string, expense_date: string }) => {
+  modifyExpense: async (userId: string, id: string, expenseData: { amount: number, category: string, description: string, expense_date: string }) => {
     return await expenseRepository.updateExpense(
+      userId,
       id,
       expenseData.amount, 
       expenseData.category, 

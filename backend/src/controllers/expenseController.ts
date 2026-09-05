@@ -10,7 +10,8 @@ export const expenseController = {
   getExpenses: async (req: Request, res: Response) => {
     try {
       const { category, search } = req.query;
-      const expenses = await expenseService.fetchAllExpenses(category as string, search as string);
+      const userId = (req as any).user.id; // From our auth middleware!
+      const expenses = await expenseService.fetchAllExpenses(userId, category as string, search as string);
       res.json(expenses);
     } catch (error) {
       console.error('Error in getExpenses controller:', error);
@@ -20,8 +21,9 @@ export const expenseController = {
 
   createExpense: async (req: Request, res: Response) => {
     try {
+      const userId = (req as any).user.id;
       // By the time it reaches here, the 'validation' middleware has already ensured req.body is perfect!
-      const newExpense = await expenseService.createExpense(req.body);
+      const newExpense = await expenseService.createExpense(userId, req.body);
       res.status(201).json(newExpense);
     } catch (error) {
       console.error('Error in createExpense controller:', error);
@@ -32,12 +34,13 @@ export const expenseController = {
   deleteExpense: async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
-      const deletedExpense = await expenseService.removeExpense(id as string);
+      const userId = (req as any).user.id;
+      const deletedExpense = await expenseService.removeExpense(userId, id as string);
       
       if (!deletedExpense) {
         // Because Express expects us to return something to end the function, we cast the return.
         // It's a TypeScript quirk with res.status().json()
-        res.status(404).json({ error: 'Expense not found' });
+        res.status(404).json({ error: 'Expense not found or you do not have permission to delete it.' });
         return;
       }
 
@@ -50,7 +53,8 @@ export const expenseController = {
 
   getSummary: async (req: Request, res: Response) => {
     try {
-      const summary = await expenseService.getSummary();
+      const userId = (req as any).user.id;
+      const summary = await expenseService.getSummary(userId);
       res.json(summary);
     } catch (error) {
       console.error('Error in getSummary controller:', error);
@@ -61,10 +65,11 @@ export const expenseController = {
   updateExpense: async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
-      const updatedExpense = await expenseService.modifyExpense(id as string, req.body);
+      const userId = (req as any).user.id;
+      const updatedExpense = await expenseService.modifyExpense(userId, id as string, req.body);
       
       if (!updatedExpense) {
-        res.status(404).json({ error: 'Expense not found' });
+        res.status(404).json({ error: 'Expense not found or you do not have permission to edit it.' });
         return;
       }
 

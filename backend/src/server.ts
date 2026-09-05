@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import expenseRoutes from './routes/expenseRoutes.js';
+import authRoutes from './routes/authRoutes.js';
+import { authenticateToken } from './middleware/auth.js';
 
 // Load variables from .env
 dotenv.config();
@@ -16,8 +18,11 @@ app.use(cors());
 app.use(express.json());
 
 // --- ROUTES ---
-// This is the magic! Any request that starts with /api/expenses gets sent to our Receptionist (expenseRoutes.ts)
-app.use('/api/expenses', expenseRoutes);
+// Auth Routes (Public)
+app.use('/api/auth', authRoutes);
+
+// Expense Routes (Protected by our new Bouncer!)
+app.use('/api/expenses', authenticateToken, expenseRoutes);
 
 // --- START SERVER ---
 app.listen(PORT, () => {

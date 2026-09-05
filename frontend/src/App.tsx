@@ -18,6 +18,13 @@ function App() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [summary, setSummary] = useState<SummaryData>({ total: 0, breakdown: [] });
   
+  // Auth State
+  const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
+  const [isLoginView, setIsLoginView] = useState(true);
+  const [authEmail, setAuthEmail] = useState('');
+  const [authPassword, setAuthPassword] = useState('');
+  const [authError, setAuthError] = useState('');
+
   // Edit State
   const [editingId, setEditingId] = useState<string | null>(null);
   
@@ -31,19 +38,23 @@ function App() {
   const [description, setDescription] = useState('');
   const [date, setDate] = useState('');
 
-  // Fetch expenses when page loads or when search/filter changes
+  // Fetch expenses when page loads or when search/filter/token changes
   useEffect(() => {
-    fetchExpenses();
-  }, [searchQuery, filterCategory]);
-
-  // We only fetch the summary once on load, or when an expense is added/deleted
-  useEffect(() => {
-    fetchSummary();
-  }, []);
+    if (token) {
+      fetchExpenses();
+      fetchSummary();
+    }
+  }, [searchQuery, filterCategory, token]);
 
   const fetchSummary = () => {
-    fetch('http://localhost:3000/api/expenses/summary')
-      .then(res => res.json())
+    if (!token) return;
+    fetch('http://localhost:3000/api/expenses/summary', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+      .then(res => {
+        if (res.status === 401 || res.status === 403) handleLogout();
+        return res.json();
+      })
       .then(data => setSummary(data))
       .catch(err => console.error(err));
   };
@@ -59,7 +70,9 @@ function App() {
       url += '?' + params.toString();
     }
 
-    fetch(url)
+    fetch(url, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
       .then(res => res.json())
       .then(data => setExpenses(data))
       .catch(err => console.error(err));
@@ -78,23 +91,23 @@ function App() {
 
     try {
       let response;
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      };
       
       // If we are editing, send a PUT request
       if (editingId) {
         response = await fetch(`http://localhost:3000/api/expenses/${editingId}`, {
           method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers,
           body: JSON.stringify(expenseData)
         });
       } else {
         // Otherwise, send a POST request
         response = await fetch('http://localhost:3000/api/expenses', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers,
           body: JSON.stringify(expenseData)
         });
       }
@@ -127,13 +140,12 @@ function App() {
   // 4. The function that runs when you click "Delete"
   const handleDeleteExpense = async (id: string) => {
     try {
-      // We append the specific ID to the URL, exactly like we did in PowerShell!
       const response = await fetch(`http://localhost:3000/api/expenses/${id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
       });
 
       if (response.ok) {
-        // If the Waiter successfully deleted it, refresh our list and summary!
         fetchExpenses();
         fetchSummary();
       }
@@ -142,10 +154,74 @@ function App() {
     }
   };
 
+  const handleAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError('');
+    const endpoint = isLoginView ? 'login' : 'register';
+    
+    try {
+      const res = await fetch(`http://localhost:3000/api/auth/${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: authEmail, password: authPassword })
+      });
+      
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      
+      localStorage.setItem('token', data.token);
+      setToken(data.token);
+      setAuthEmail('');
+      setAuthPassword('');
+    } catch (err: any) {
+      setAuthError(err.message);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setToken(null);
+    setExpenses([]);
+    setSummary({ total: 0, breakdown: [] });
+  };
+
+  // If there is no token, show the Login/Signup screen!
+  if (!token) {
+    return (
+      <div className="app-container" style={{ maxWidth: '400px', marginTop: '100px' }}>
+        <h1 className="app-title" style={{ fontSize: '2.5rem' }}>💸 Expense Tracker</h1>
+        <form className="glass-card expense-form" onSubmit={handleAuth}>
+          <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>
+            {isLoginView ? 'Welcome Back' : 'Create Account'}
+          </h2>
+          {authError && <div style={{ background: 'rgba(239, 68, 68, 0.2)', padding: '10px', borderRadius: '8px', color: '#fca5a5', textAlign: 'center', border: '1px solid rgba(239, 68, 68, 0.4)' }}>{authError}</div>}
+          <div className="form-group">
+            <label>Email</label>
+            <input type="email" value={authEmail} onChange={e => setAuthEmail(e.target.value)} required />
+          </div>
+          <div className="form-group">
+            <label>Password</label>
+            <input type="password" value={authPassword} onChange={e => setAuthPassword(e.target.value)} required />
+          </div>
+          <button type="submit" style={{ marginTop: '10px' }}>
+            {isLoginView ? 'Log In' : 'Sign Up'}
+          </button>
+          <p style={{ textAlign: 'center', marginTop: '15px', color: '#94a3b8', cursor: 'pointer' }} onClick={() => setIsLoginView(!isLoginView)}>
+            {isLoginView ? "Don't have an account? Sign up" : "Already have an account? Log in"}
+          </p>
+        </form>
+      </div>
+    );
+  }
 
   return (
     <div className="app-container">
-      <h1 className="app-title">💸 My Expense Tracker</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
+        <h1 className="app-title" style={{ margin: 0, fontSize: '2.5rem' }}>💸 Tracker</h1>
+        <button onClick={handleLogout} style={{ width: 'auto', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '8px 20px' }}>
+          Logout
+        </button>
+      </div>
 
       <div className="main-grid">
         {/* LEFT COLUMN: Dashboard & Form */}
