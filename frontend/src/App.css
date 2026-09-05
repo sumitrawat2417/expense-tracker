@@ -1,89 +1,92 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 :root {
-  font-family: 'Outfit', sans-serif;
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  font-family: 'Poppins', sans-serif;
+  background: #0f172a;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(15, 23, 42, 1) 0, transparent 50%), 
+    radial-gradient(at 50% 0%, rgba(99, 102, 241, 0.15) 0, transparent 50%), 
+    radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.15) 0, transparent 50%);
+  background-attachment: fixed;
   color: #f8fafc;
   min-height: 100vh;
-  margin: 0;
-  display: flex;
-  justify-content: center;
 }
 
+/* FIX: Removing the flex centering from body/:root that was clipping the top! */
 body {
   margin: 0;
   padding: 0;
   width: 100%;
+  overflow-x: hidden;
 }
 
 .app-container {
-  max-width: 800px;
-  margin: 40px auto;
-  padding: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 60px 20px;
 }
 
-h1 {
+h1.app-title {
   text-align: center;
-  font-size: 3rem;
+  font-size: 3.5rem;
   font-weight: 700;
   background: linear-gradient(to right, #38bdf8, #818cf8, #c084fc);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  margin-bottom: 40px;
-  animation: fadeDown 0.8s ease-out;
+  margin-top: 0;
+  margin-bottom: 50px;
+  letter-spacing: -1.5px;
+  line-height: 1.2;
+}
+
+/* --- 2-COLUMN LAYOUT --- */
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 40px;
+}
+
+@media (min-width: 992px) {
+  .main-grid {
+    grid-template-columns: 400px 1fr;
+    align-items: start; /* Prevents stretching */
+  }
 }
 
 /* Glassmorphism Cards */
 .glass-card {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  background: rgba(30, 41, 59, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  padding: 30px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.expense-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-  animation: slideUp 0.5s ease-out forwards;
-  opacity: 0;
+.total-spent-card {
+  text-align: center; 
+  margin-bottom: 30px; 
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(168, 85, 247, 0.15) 100%);
+  border: 1px solid rgba(168, 85, 247, 0.3);
 }
 
-.expense-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.expense-info strong {
-  font-size: 1.2rem;
-  color: #38bdf8;
-  display: block;
-  margin-bottom: 4px;
-}
-
-.expense-info small {
-  color: #94a3b8;
-  font-size: 0.9rem;
-}
-
-.expense-amount {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #4ade80;
+.total-spent-amount {
+  font-size: 3.5rem; 
+  font-weight: 700; 
+  background: linear-gradient(to right, #4ade80, #38bdf8); 
+  -webkit-background-clip: text; 
+  -webkit-text-fill-color: transparent; 
+  margin-bottom: 20px;
+  line-height: 1.1;
 }
 
 /* Form Styles */
 .expense-form {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 40px;
+  grid-template-columns: 1fr;
+  gap: 20px;
 }
 
 .form-group {
@@ -91,38 +94,42 @@ h1 {
   flex-direction: column;
 }
 
-.form-group.full-width {
-  grid-column: span 2;
+.form-group label {
+  font-size: 0.9rem;
+  color: #cbd5e1;
+  margin-bottom: 8px;
+  font-weight: 500;
 }
 
 input, select {
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   color: white;
-  padding: 12px 16px;
-  border-radius: 8px;
-  font-family: 'Outfit', sans-serif;
+  padding: 14px 16px;
+  border-radius: 12px;
+  font-family: 'Poppins', sans-serif;
   font-size: 1rem;
   outline: none;
-  transition: border-color 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 input:focus, select:focus {
   border-color: #818cf8;
+  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.2);
 }
 
 button {
   background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
   color: white;
   border: none;
-  padding: 14px 24px;
-  border-radius: 8px;
+  padding: 16px 24px;
+  border-radius: 12px;
   font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  grid-column: span 2;
-  font-family: 'Outfit', sans-serif;
+  transition: all 0.2s ease;
+  font-family: 'Poppins', sans-serif;
+  width: 100%;
 }
 
 button:hover {
@@ -130,34 +137,63 @@ button:hover {
   box-shadow: 0 10px 20px rgba(168, 85, 247, 0.4);
 }
 
-button.delete-btn {
-  background: rgba(239, 68, 68, 0.1);
-  color: #ef4444;
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  padding: 8px 16px;
-  grid-column: auto;
-  font-size: 0.9rem;
-  border-radius: 6px;
+/* Expense List */
+.expense-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  background: rgba(15, 23, 42, 0.4);
+  padding: 20px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
 }
 
-button.delete-btn:hover {
-  background: rgba(239, 68, 68, 0.2);
+.expense-item:hover {
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  background: rgba(30, 41, 59, 0.8);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.expense-info strong {
+  font-size: 1.25rem;
+  color: #38bdf8;
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.expense-info small {
+  color: #94a3b8;
+  font-size: 0.95rem;
+}
+
+.expense-amount {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #4ade80;
+  text-align: right;
+}
+
+button.action-btn {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  width: auto;
+  margin-left: 8px;
+}
+button.action-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
   box-shadow: none;
 }
 
-/* Animations */
-@keyframes fadeDown {
-  from { opacity: 0; transform: translateY(-20px); }
-  to { opacity: 1; transform: translateY(0); }
+.category-bubble {
+  background: rgba(0,0,0,0.3);
+  padding: 10px 20px;
+  border-radius: 30px;
+  font-size: 1rem;
+  border: 1px solid rgba(255,255,255,0.05);
 }
-
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Stagger animations for list items */
-.expense-item:nth-child(1) { animation-delay: 0.1s; }
-.expense-item:nth-child(2) { animation-delay: 0.2s; }
-.expense-item:nth-child(3) { animation-delay: 0.3s; }
-.expense-item:nth-child(4) { animation-delay: 0.4s; }

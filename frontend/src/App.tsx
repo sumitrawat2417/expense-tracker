@@ -1,3 +1,6 @@
+import { useState, useEffect } from 'react';
+import './App.css';
+
 interface Expense {
   id: string;
   amount: string;
@@ -142,119 +145,129 @@ function App() {
 
   return (
     <div className="app-container">
-      <h1>💸 My Expense Tracker</h1>
+      <h1 className="app-title">💸 My Expense Tracker</h1>
 
-      <div className="glass-card" style={{ textAlign: 'center', marginBottom: '30px', background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%)', border: '1px solid rgba(168, 85, 247, 0.3)' }}>
-        <h2 style={{ margin: '0 0 10px 0', fontSize: '1.2rem', color: '#94a3b8' }}>Total Spent</h2>
-        <div style={{ fontSize: '3rem', fontWeight: 'bold', background: 'linear-gradient(to right, #4ade80, #38bdf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: '15px' }}>
-          ${summary.total.toFixed(2)}
-        </div>
-
-        {/* Category Breakdown */}
-        {summary.breakdown.length > 0 && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '15px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '15px' }}>
-            {summary.breakdown.map((item) => (
-              <div key={item.category} style={{ background: 'rgba(0,0,0,0.2)', padding: '8px 15px', borderRadius: '20px', fontSize: '0.9rem' }}>
-                <span style={{ color: '#94a3b8', marginRight: '8px' }}>{item.category}:</span>
-                <span style={{ fontWeight: 'bold', color: '#e2e8f0' }}>${item.total.toFixed(2)}</span>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* 3. Our New Form */}
-      <form className="glass-card expense-form" onSubmit={handleAddExpense}>
-        <div className="form-group">
-          <label>Amount ($)</label>
-          <input type="number" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} required />
-        </div>
-
-        <div className="form-group">
-          <label>Category</label>
-          <select value={category} onChange={(e) => setCategory(e.target.value)}>
-            <option value="Food">Food</option>
-            <option value="Transport">Transport</option>
-            <option value="Entertainment">Entertainment</option>
-            <option value="Bills">Bills</option>
-          </select>
-        </div>
-
-        <div className="form-group full-width">
-          <label>Description</label>
-          <input type="text" value={description} onChange={(e) => setDescription(e.target.value)} required />
-        </div>
-
-        <div className="form-group full-width">
-          <label>Date</label>
-          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
-        </div>
-
-        <button type="submit" style={{ background: editingId ? '#eab308' : undefined }}>
-          {editingId ? '💾 Save Changes' : '✨ Add Expense'}
-        </button>
-        {editingId && (
-          <button 
-            type="button" 
-            onClick={() => {
-              setEditingId(null);
-              setAmount(''); setCategory('Food'); setDescription(''); setDate('');
-            }}
-            style={{ background: '#475569', marginTop: '10px' }}
-          >
-            Cancel Edit
-          </button>
-        )}
-      </form>
-
-      {/* 4. Search and Filter Bar */}
-      <div className="glass-card" style={{ display: 'flex', gap: '15px', marginBottom: '20px' }}>
-        <input 
-          type="text" 
-          placeholder="🔍 Search expenses..." 
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.05)', color: 'white' }}
-        />
-        <select 
-          value={filterCategory}
-          onChange={(e) => setFilterCategory(e.target.value)}
-          style={{ padding: '10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.05)', color: 'white', minWidth: '150px' }}
-        >
-          <option value="" style={{color: 'black'}}>All Categories</option>
-          <option value="Food" style={{color: 'black'}}>Food</option>
-          <option value="Transportation" style={{color: 'black'}}>Transportation</option>
-          <option value="Entertainment" style={{color: 'black'}}>Entertainment</option>
-          <option value="Bills" style={{color: 'black'}}>Bills</option>
-          <option value="Other" style={{color: 'black'}}>Other</option>
-        </select>
-      </div>
-
-      {/* 5. Our Expense List */}
-      <div className="expense-list">
-        {expenses.length === 0 ? (
-          <p style={{ textAlign: 'center' }}>No expenses yet. Add one above!</p>
-        ) : (
-          expenses.map((expense) => (
-            <div key={expense.id} className="glass-card expense-item">
-              <div className="expense-info">
-                <strong>{expense.category}</strong>
-                <small>{expense.description} • {new Date(expense.expense_date).toLocaleDateString()}</small>
-              </div>
-              <div className="expense-amount" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
-                ${parseFloat(expense.amount).toFixed(2)}
-                <div>
-                  <button onClick={() => handleEditClick(expense)} className="delete-btn" style={{ background: '#eab308', marginRight: '10px' }}>
-                    ✏️ Edit
-                  </button>
-                  <button onClick={() => handleDeleteExpense(expense.id)} className="delete-btn">
-                    🗑️ Delete
-                  </button>
-                </div>
-              </div>
+      <div className="main-grid">
+        {/* LEFT COLUMN: Dashboard & Form */}
+        <div className="left-column">
+          
+          {/* Total Spent Dashboard */}
+          <div className="glass-card total-spent-card">
+            <h2 style={{ margin: '0 0 10px 0', fontSize: '1.2rem', color: '#94a3b8', fontWeight: 500 }}>Total Spent</h2>
+            <div className="total-spent-amount">
+              ${summary.total.toFixed(2)}
             </div>
-          ))
-        )}
+
+            {/* Category Breakdown */}
+            {summary.breakdown.length > 0 && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '12px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '20px' }}>
+                {summary.breakdown.map((item) => (
+                  <div key={item.category} className="category-bubble">
+                    <span style={{ color: '#94a3b8', marginRight: '8px' }}>{item.category}</span>
+                    <span style={{ fontWeight: '600', color: '#e2e8f0' }}>${item.total.toFixed(2)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Add/Edit Form */}
+          <form className="glass-card expense-form" onSubmit={handleAddExpense}>
+            <h2 style={{ margin: '0 0 20px 0', fontSize: '1.4rem', fontWeight: 600 }}>
+              {editingId ? 'Edit Expense' : 'Add New Expense'}
+            </h2>
+            <div className="form-group">
+              <label>Amount ($)</label>
+              <input type="number" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" required />
+            </div>
+            <div className="form-group">
+              <label>Category</label>
+              <select value={category} onChange={(e) => setCategory(e.target.value)}>
+                <option value="Food">Food</option>
+                <option value="Transportation">Transportation</option>
+                <option value="Entertainment">Entertainment</option>
+                <option value="Bills">Bills</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Description</label>
+              <input type="text" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What did you buy?" required />
+            </div>
+            <div className="form-group">
+              <label>Date</label>
+              <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
+            </div>
+
+            <button type="submit" style={{ background: editingId ? 'linear-gradient(135deg, #eab308 0%, #d97706 100%)' : undefined, marginTop: '10px' }}>
+              {editingId ? '💾 Save Changes' : '✨ Add Expense'}
+            </button>
+            {editingId && (
+              <button 
+                type="button" 
+                onClick={() => {
+                  setEditingId(null);
+                  setAmount(''); setCategory('Food'); setDescription(''); setDate('');
+                }}
+                style={{ background: 'rgba(255,255,255,0.1)', marginTop: '10px' }}
+              >
+                Cancel Edit
+              </button>
+            )}
+          </form>
+        </div>
+
+        {/* RIGHT COLUMN: Search & List */}
+        <div className="right-column">
+          <div className="glass-card" style={{ display: 'flex', gap: '15px', marginBottom: '20px' }}>
+            <input 
+              type="text" 
+              placeholder="🔍 Search expenses..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.05)', color: 'white' }}
+            />
+            <select 
+              value={filterCategory}
+              onChange={(e) => setFilterCategory(e.target.value)}
+              style={{ padding: '10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.05)', color: 'white', minWidth: '150px' }}
+            >
+              <option value="" style={{color: 'black'}}>All Categories</option>
+              <option value="Food" style={{color: 'black'}}>Food</option>
+              <option value="Transportation" style={{color: 'black'}}>Transportation</option>
+              <option value="Entertainment" style={{color: 'black'}}>Entertainment</option>
+              <option value="Bills" style={{color: 'black'}}>Bills</option>
+              <option value="Other" style={{color: 'black'}}>Other</option>
+            </select>
+          </div>
+
+          {/* 5. Our Expense List */}
+          <div className="expense-list">
+            {expenses.length === 0 ? (
+              <p style={{ textAlign: 'center', color: '#94a3b8', marginTop: '40px' }}>No expenses found.</p>
+            ) : (
+              expenses.map((expense) => (
+                <div key={expense.id} className="expense-item">
+                  <div className="expense-info">
+                    <strong>{expense.description}</strong>
+                    <small>{expense.category} • {new Date(expense.expense_date).toLocaleDateString()}</small>
+                  </div>
+                  <div className="expense-amount" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '12px' }}>
+                    ${parseFloat(expense.amount).toFixed(2)}
+                    <div>
+                      <button onClick={() => handleEditClick(expense)} className="action-btn" style={{ background: 'rgba(234, 179, 8, 0.1)', color: '#eab308', border: '1px solid rgba(234, 179, 8, 0.3)' }}>
+                        ✏️ Edit
+                      </button>
+                      <button onClick={() => handleDeleteExpense(expense.id)} className="action-btn" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
+                        🗑️ Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
