@@ -1,6 +1,3 @@
-import { useState, useEffect } from 'react';
-import './App.css';
-
 interface Expense {
   id: string;
   amount: string;
@@ -9,9 +6,14 @@ interface Expense {
   expense_date: string;
 }
 
+interface SummaryData {
+  total: number;
+  breakdown: { category: string; total: number }[];
+}
+
 function App() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [totalSpent, setTotalSpent] = useState<number>(0);
+  const [summary, setSummary] = useState<SummaryData>({ total: 0, breakdown: [] });
   
   // Edit State
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -39,7 +41,7 @@ function App() {
   const fetchSummary = () => {
     fetch('http://localhost:3000/api/expenses/summary')
       .then(res => res.json())
-      .then(data => setTotalSpent(data.total))
+      .then(data => setSummary(data))
       .catch(err => console.error(err));
   };
 
@@ -144,9 +146,21 @@ function App() {
 
       <div className="glass-card" style={{ textAlign: 'center', marginBottom: '30px', background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%)', border: '1px solid rgba(168, 85, 247, 0.3)' }}>
         <h2 style={{ margin: '0 0 10px 0', fontSize: '1.2rem', color: '#94a3b8' }}>Total Spent</h2>
-        <div style={{ fontSize: '3rem', fontWeight: 'bold', background: 'linear-gradient(to right, #4ade80, #38bdf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-          ${totalSpent.toFixed(2)}
+        <div style={{ fontSize: '3rem', fontWeight: 'bold', background: 'linear-gradient(to right, #4ade80, #38bdf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: '15px' }}>
+          ${summary.total.toFixed(2)}
         </div>
+
+        {/* Category Breakdown */}
+        {summary.breakdown.length > 0 && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '15px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '15px' }}>
+            {summary.breakdown.map((item) => (
+              <div key={item.category} style={{ background: 'rgba(0,0,0,0.2)', padding: '8px 15px', borderRadius: '20px', fontSize: '0.9rem' }}>
+                <span style={{ color: '#94a3b8', marginRight: '8px' }}>{item.category}:</span>
+                <span style={{ fontWeight: 'bold', color: '#e2e8f0' }}>${item.total.toFixed(2)}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* 3. Our New Form */}

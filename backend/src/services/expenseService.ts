@@ -25,8 +25,14 @@ export const expenseService = {
 
   getSummary: async () => {
     const total = await expenseRepository.getTotalSpending();
+    const breakdown = await expenseRepository.getCategoryBreakdown();
+    
     return {
-      total: parseFloat(total)
+      total: parseFloat(total),
+      breakdown: breakdown.map(item => ({
+        category: item.category,
+        total: parseFloat(item.total)
+      }))
     };
   },
 

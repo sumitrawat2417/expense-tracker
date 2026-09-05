@@ -76,5 +76,17 @@ export const expenseRepository = {
     }
     
     return result.rows[0];
+  },
+
+  // 6. Get spending breakdown by category
+  getCategoryBreakdown: async () => {
+    const query = `
+      SELECT category, SUM(amount) as total 
+      FROM expenses 
+      GROUP BY category 
+      ORDER BY total DESC;
+    `;
+    const result = await pool.query(query);
+    return result.rows;
   }
 };
