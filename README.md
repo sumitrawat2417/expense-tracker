@@ -1,28 +1,23 @@
-# Expense Tracker
+# 💸 Expense Tracker (Real-World SaaS)
 
 ## 1. Project Description
-**Expense Tracker** is a full-stack web application designed for recording, managing, and analyzing personal expenses. Built as a foundational software engineering exercise, the core objective of this project is to learn and implement the complete request-to-database-to-response lifecycle, encompassing frontend, backend, REST API, and PostgreSQL concepts.
+**Expense Tracker** is a full-stack, multi-tenant web application designed for securely recording, managing, and analyzing personal expenses. What started as a foundational project has evolved into a production-ready application featuring robust JWT Authentication, a serverless PostgreSQL database (Neon), and a premium glassmorphism user interface.
 
-## 2. Problem Statement
-Managing personal finances can be disorganized. Many existing apps are either too complex or hide their architecture from developers. This project solves two problems: it provides a simple interface to manage personal spending, while simultaneously serving as a hands-on learning environment for full-stack engineering, emphasizing database design, REST APIs, and application architecture.
+## 2. Features
+* **Multi-Tenant Architecture**: Complete data isolation. Users can sign up, log in, and securely manage their own private data.
+* **JWT Authentication**: Passwords are mathematically hashed with `bcryptjs`, and sessions are managed securely using JSON Web Tokens.
+* **Full CRUD Functionality**: Create, Read, Update, and Delete your expenses.
+* **Dynamic Search & Filtering**: Fuzzy search (`ILIKE`) and category filtering that instantly updates the UI.
+* **Real-time Spending Summaries**: Instantly calculates total spending and categorizes breakdowns.
+* **Premium Glassmorphism UI**: A gorgeous, modern, 2-column responsive layout built from scratch with custom CSS and typography.
 
-## 3. Features
-* **Create, View, Edit, and Delete Expenses**
-* **Categorize Expenses** (e.g., Food, Transport, Shopping, Bills)
-* **Track Total Spending** dynamically based on database records
-* **Filter and Search Expenses** by category, date, and text
-* **Expense Summaries** to visualize spending per category
-
-## 4. Screenshots
-*(Screenshots will be added once the application UI is fully developed)*
-
-## 5. Architecture
+## 3. Architecture
 The application follows a standard three-tier architecture:
 ```text
 ┌─────────────────────┐
-│      Browser        │ (React + TypeScript)
+│      Browser        │ (React + TypeScript + CSS Modules)
 └──────────┬──────────┘
-           │ HTTP/REST
+           │ HTTP/REST (Protected by JWT Bearer Tokens)
            ▼
 ┌─────────────────────┐
 │     Backend API     │ (Node.js + Express)
@@ -30,78 +25,59 @@ The application follows a standard three-tier architecture:
            │ SQL
            ▼
 ┌─────────────────────┐
-│     PostgreSQL      │
+│ Neon Serverless DB  │ (PostgreSQL)
 └─────────────────────┘
 ```
 
-The backend is further separated logically into Routes → Controllers → Services → Repositories → Database, ensuring clean maintainability and separation of concerns.
+The backend is separated logically into `Routes → Middleware (Auth) → Controllers → Services → Repositories → Database`, ensuring clean maintainability and separation of concerns.
 
-## 6. Technology Stack
-* **Frontend:** React, TypeScript, Vite, HTML, CSS
-* **Backend:** Node.js, Express, TypeScript
-* **Database:** PostgreSQL
-* **Tools:** Git, GitHub, VS Code, API Testing (e.g., Postman)
+## 4. Technology Stack
+* **Frontend:** React, TypeScript, Vite, Vanilla CSS (Glassmorphism)
+* **Backend:** Node.js, Express, TypeScript, `jsonwebtoken`, `bcryptjs`
+* **Database:** PostgreSQL (Hosted on Neon)
+* **Version Control:** Git & GitHub
 
-## 7. Database Schema
+## 5. Database Schema
+**Table:** `users`
+| Field | Type | Description |
+|---|---|---|
+| `id` | UUID | Unique user identifier (Primary Key) |
+| `email` | VARCHAR(255) | Unique email |
+| `password_hash` | VARCHAR(255) | Bcrypt hashed password |
+| `created_at` | TIMESTAMPTZ | Account creation time |
+
 **Table:** `expenses`
 | Field | Type | Description |
 |---|---|---|
 | `id` | UUID | Unique expense identifier (Primary Key) |
-| `amount` | NUMERIC(12,2) | Expense amount |
-| `category` | VARCHAR(50) | Expense category |
+| `user_id` | UUID | Foreign Key linking to `users` |
+| `amount` | NUMERIC(10,2) | Expense amount |
+| `category` | VARCHAR(100) | Expense category |
 | `description` | TEXT | Optional description |
-| `expense_date` | DATE | Date of the expense |
-| `created_at` | TIMESTAMPTZ | Record creation time |
-| `updated_at` | TIMESTAMPTZ | Last modification time |
+| `expense_date` | TIMESTAMP | Date of the expense |
 
-## 8. API Documentation
-* **POST `/api/expenses`**: Create an expense
-* **GET `/api/expenses`**: Retrieve all expenses (supports `category`, `from`, `to`, `search` query parameters)
-* **GET `/api/expenses/:id`**: Retrieve a single expense by ID
-* **PATCH `/api/expenses/:id`**: Update an expense
-* **DELETE `/api/expenses/:id`**: Delete an expense
-* **GET `/api/summary`**: Retrieve total spending and category summaries
-
-## 9. Installation Instructions
+## 6. Installation Instructions
 1. Clone the repository: `git clone https://github.com/sumitrawat2417/expense-tracker.git`
 2. Navigate to the project directory: `cd expense-tracker`
 3. Install frontend dependencies: `cd frontend && npm install`
 4. Install backend dependencies: `cd ../backend && npm install`
 
-## 10. Environment Variables
-Create a `.env` file in the `backend` directory based on `.env.example`:
+## 7. Environment Variables
+Create a `.env` file in the `backend` directory:
 ```env
-DATABASE_URL=postgresql://user:password@localhost:5432/expense_tracker
+DATABASE_URL=postgresql://your_db_user:password@your_neon_host.aws.neon.tech/neondb?sslmode=require
 PORT=3000
+JWT_SECRET=super_secret_auth_key_for_expense_tracker
 ```
 **Note:** Never commit the `.env` file to version control.
 
-## 11. Running Locally
-1. Start the PostgreSQL database and ensure it's running.
-2. Run database migrations (instructions to be added during development).
-3. Start the backend server: `cd backend && npm run dev`
-4. Start the frontend server: `cd frontend && npm run dev`
-5. Open your browser and navigate to the local frontend URL (usually `http://localhost:5173`).
+## 8. Running Locally
+1. Start the backend server: `cd backend && npm run dev`
+2. Start the frontend server: `cd frontend && npm run dev`
+3. Open your browser and navigate to `http://localhost:5173`.
+4. Create an account and start tracking!
 
-## 12. Testing
-* **Backend:** Run unit and integration tests using `npm test` inside the backend directory.
-* **Frontend:** Run component tests using `npm test` inside the frontend directory.
-* **API Testing:** Use Postman or a similar tool to verify endpoint functionality.
-
-## 13. Deployment
-*(Deployment instructions will be finalized in Phase 9 of the roadmap. The application can be containerized with Docker and hosted on standard cloud providers).*
-
-## 14. Limitations (MVP Scope)
-* Single-user only (No Authentication initially)
-* No automatic bank imports or AI categorization
-* No advanced real-time synchronization
-* Only core REST architecture (no microservices/Kubernetes yet)
-
-## 15. Future Improvements
-* Multi-user support with secure authentication (JWT)
-* Advanced financial analytics, monthly budgets, and chart visualizations
+## 9. Future Improvements
+* Advanced financial analytics, monthly budgets, and chart visualizations (e.g. Chart.js or Recharts)
 * CSV Import/Export functionality
-* Email or push notification reminders for recurring expenses
-
-## 16. License
-This project is licensed under the MIT License.
+* Automatic cloud deployment via Vercel and Render
