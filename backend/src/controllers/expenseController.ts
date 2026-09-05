@@ -45,6 +45,16 @@ export const expenseController = {
       console.error('Error in deleteExpense controller:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
+  },
+
+  getSummary: async (req: Request, res: Response) => {
+    try {
+      const summary = await expenseService.getSummary();
+      res.json(summary);
+    } catch (error) {
+      console.error('Error in getSummary controller:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
   }
 
 };

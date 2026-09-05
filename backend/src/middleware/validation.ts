@@ -12,19 +12,16 @@ export const expenseSchema = z.object({
 });
 
 // 2. We create an Express Middleware that automatically checks incoming requests against our Schema
-export const validateExpense = (req: Request, res: Response, next: NextFunction) => {
-  try {
-    // This will throw an error if the body doesn't match the schema
-    expenseSchema.parse(req.body);
-    
-    // If it passes, move on to the next function (the Controller)
-    next();
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      // Send a 400 Bad Request with all the specific errors Zod found
-      res.status(400).json({ errors: error.errors.map(e => e.message) });
-    } else {
-      res.status(400).json({ error: 'Invalid input' });
-    }
+export const validateExpense = (req: Request, res: Response, next: NextFunction): void => {
+  // safeParse doesn't throw errors, it returns an object indicating success or failure
+  const result = expenseSchema.safeParse(req.body);
+  
+  if (!result.success) {
+    // Send a 400 Bad Request with all the specific errors Zod found
+    res.status(400).json({ errors: result.error.issues.map((e) => e.message) });
+    return;
   }
+  
+  // If it passes, move on to the next function (the Controller)
+  next();
 };

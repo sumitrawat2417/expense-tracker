@@ -34,5 +34,12 @@ export const expenseRepository = {
     }
     
     return result.rows[0];
+  },
+
+  // 4. Get total spending summary
+  getTotalSpending: async () => {
+    const result = await pool.query('SELECT SUM(amount) AS total FROM expenses;');
+    // COALESCE handles the case where there are no rows yet
+    return result.rows[0].total || 0;
   }
 };

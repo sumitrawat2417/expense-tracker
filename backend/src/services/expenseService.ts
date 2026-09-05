@@ -21,5 +21,12 @@ export const expenseService = {
 
   removeExpense: async (id: string) => {
     return await expenseRepository.deleteExpense(id);
+  },
+
+  getSummary: async () => {
+    const total = await expenseRepository.getTotalSpending();
+    return {
+      total: parseFloat(total)
+    };
   }
 };

@@ -14,6 +14,10 @@ router.get('/', expenseController.getExpenses);
 // Notice we put validateExpense right in the middle! It acts as a shield before the controller.
 router.post('/', validateExpense, expenseController.createExpense);
 
+// GET /api/expenses/summary
+// IMPORTANT: This must go BEFORE /:id so Express doesn't think "summary" is an ID!
+router.get('/summary', expenseController.getSummary);
+
 // DELETE /api/expenses/:id
 router.delete('/:id', expenseController.deleteExpense);
 

@@ -11,6 +11,7 @@ interface Expense {
 
 function App() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [totalSpent, setTotalSpent] = useState<number>(0);
 
   // 1. New State for our Form Inputs
   const [amount, setAmount] = useState('');
@@ -21,7 +22,15 @@ function App() {
   // Fetch expenses when page loads
   useEffect(() => {
     fetchExpenses();
+    fetchSummary();
   }, []);
+
+  const fetchSummary = () => {
+    fetch('http://localhost:3000/api/expenses/summary')
+      .then(res => res.json())
+      .then(data => setTotalSpent(data.total))
+      .catch(err => console.error(err));
+  };
 
   const fetchExpenses = () => {
     fetch('http://localhost:3000/api/expenses')
@@ -54,8 +63,9 @@ function App() {
         setAmount('');
         setDescription('');
         setDate('');
-        // Refresh the list from the database
+        // Refresh the list and summary from the database
         fetchExpenses();
+        fetchSummary();
       }
     } catch (error) {
       console.error('Failed to add expense:', error);
@@ -71,8 +81,9 @@ function App() {
       });
 
       if (response.ok) {
-        // If the Waiter successfully deleted it, refresh our list!
+        // If the Waiter successfully deleted it, refresh our list and summary!
         fetchExpenses();
+        fetchSummary();
       }
     } catch (error) {
       console.error('Failed to delete expense:', error);
@@ -83,6 +94,13 @@ function App() {
   return (
     <div className="app-container">
       <h1>💸 My Expense Tracker</h1>
+
+      <div className="glass-card" style={{ textAlign: 'center', marginBottom: '30px', background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%)', border: '1px solid rgba(168, 85, 247, 0.3)' }}>
+        <h2 style={{ margin: '0 0 10px 0', fontSize: '1.2rem', color: '#94a3b8' }}>Total Spent</h2>
+        <div style={{ fontSize: '3rem', fontWeight: 'bold', background: 'linear-gradient(to right, #4ade80, #38bdf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+          ${totalSpent.toFixed(2)}
+        </div>
+      </div>
 
       {/* 3. Our New Form */}
       <form className="glass-card expense-form" onSubmit={handleAddExpense}>
