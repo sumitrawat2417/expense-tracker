@@ -6,8 +6,8 @@ import { expenseRepository } from '../repositories/expenseRepository.js';
  */
 export const expenseService = {
   
-  fetchAllExpenses: async () => {
-    return await expenseRepository.getAllExpenses();
+  fetchAllExpenses: async (category?: string, search?: string) => {
+    return await expenseRepository.getAllExpenses(category, search);
   },
 
   createExpense: async (expenseData: { amount: number, category: string, description: string, expense_date: string }) => {

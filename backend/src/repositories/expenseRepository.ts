@@ -6,9 +6,26 @@ import pool from '../db/database.js';
  */
 export const expenseRepository = {
   
-  // 1. Fetch all expenses
-  getAllExpenses: async () => {
-    const result = await pool.query('SELECT * FROM expenses ORDER BY created_at DESC');
+  // 1. Fetch all expenses (with optional filtering)
+  getAllExpenses: async (category?: string, search?: string) => {
+    let query = 'SELECT * FROM expenses WHERE 1=1';
+    const values: string[] = [];
+
+    // If a category was provided, add it to the SQL query
+    if (category) {
+      values.push(category);
+      query += ` AND category = $${values.length}`;
+    }
+
+    // If a search term was provided, add a fuzzy search (ILIKE) to the SQL query
+    if (search) {
+      values.push(`%${search}%`); // The % signs mean "match anything before or after"
+      query += ` AND description ILIKE $${values.length}`;
+    }
+
+    query += ' ORDER BY created_at DESC';
+    
+    const result = await pool.query(query, values);
     return result.rows;
   },
 

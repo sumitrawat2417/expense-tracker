@@ -12,6 +12,10 @@ interface Expense {
 function App() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [totalSpent, setTotalSpent] = useState<number>(0);
+  
+  // Search and Filter State
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterCategory, setFilterCategory] = useState('');
 
   // 1. New State for our Form Inputs
   const [amount, setAmount] = useState('');
@@ -19,9 +23,13 @@ function App() {
   const [description, setDescription] = useState('');
   const [date, setDate] = useState('');
 
-  // Fetch expenses when page loads
+  // Fetch expenses when page loads or when search/filter changes
   useEffect(() => {
     fetchExpenses();
+  }, [searchQuery, filterCategory]);
+
+  // We only fetch the summary once on load, or when an expense is added/deleted
+  useEffect(() => {
     fetchSummary();
   }, []);
 
@@ -33,7 +41,17 @@ function App() {
   };
 
   const fetchExpenses = () => {
-    fetch('http://localhost:3000/api/expenses')
+    let url = 'http://localhost:3000/api/expenses';
+    const params = new URLSearchParams();
+    
+    if (searchQuery) params.append('search', searchQuery);
+    if (filterCategory) params.append('category', filterCategory);
+    
+    if (params.toString()) {
+      url += '?' + params.toString();
+    }
+
+    fetch(url)
       .then(res => res.json())
       .then(data => setExpenses(data))
       .catch(err => console.error(err));
@@ -132,7 +150,30 @@ function App() {
         <button type="submit">✨ Add Expense</button>
       </form>
 
-      {/* The Expense List */}
+      {/* 4. Search and Filter Bar */}
+      <div className="glass-card" style={{ display: 'flex', gap: '15px', marginBottom: '20px' }}>
+        <input 
+          type="text" 
+          placeholder="🔍 Search expenses..." 
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.05)', color: 'white' }}
+        />
+        <select 
+          value={filterCategory}
+          onChange={(e) => setFilterCategory(e.target.value)}
+          style={{ padding: '10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.05)', color: 'white', minWidth: '150px' }}
+        >
+          <option value="" style={{color: 'black'}}>All Categories</option>
+          <option value="Food" style={{color: 'black'}}>Food</option>
+          <option value="Transportation" style={{color: 'black'}}>Transportation</option>
+          <option value="Entertainment" style={{color: 'black'}}>Entertainment</option>
+          <option value="Bills" style={{color: 'black'}}>Bills</option>
+          <option value="Other" style={{color: 'black'}}>Other</option>
+        </select>
+      </div>
+
+      {/* 5. Our Expense List */}
       <div className="expense-list">
         {expenses.length === 0 ? (
           <p style={{ textAlign: 'center' }}>No expenses yet. Add one above!</p>

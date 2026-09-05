@@ -9,7 +9,8 @@ export const expenseController = {
 
   getExpenses: async (req: Request, res: Response) => {
     try {
-      const expenses = await expenseService.fetchAllExpenses();
+      const { category, search } = req.query;
+      const expenses = await expenseService.fetchAllExpenses(category as string, search as string);
       res.json(expenses);
     } catch (error) {
       console.error('Error in getExpenses controller:', error);
