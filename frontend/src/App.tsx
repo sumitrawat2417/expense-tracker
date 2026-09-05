@@ -13,6 +13,9 @@ function App() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [totalSpent, setTotalSpent] = useState<number>(0);
   
+  // Edit State
+  const [editingId, setEditingId] = useState<string | null>(null);
+  
   // Search and Filter State
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
@@ -57,40 +60,66 @@ function App() {
       .catch(err => console.error(err));
   };
 
-  // 2. The function that runs when you click "Add Expense"
+  // 2. The function that runs when you submit the form
   const handleAddExpense = async (e: React.FormEvent) => {
-    e.preventDefault(); // Stops the page from refreshing!
+    e.preventDefault();
 
-    const newExpense = {
+    const expenseData = {
       amount: parseFloat(amount),
-      category: category,
-      description: description,
+      category,
+      description,
       expense_date: date
     };
 
     try {
-      // Send a POST request to our Waiter!
-      const response = await fetch('http://localhost:3000/api/expenses', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newExpense)
-      });
+      let response;
+      
+      // If we are editing, send a PUT request
+      if (editingId) {
+        response = await fetch(`http://localhost:3000/api/expenses/${editingId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(expenseData)
+        });
+      } else {
+        // Otherwise, send a POST request
+        response = await fetch('http://localhost:3000/api/expenses', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(expenseData)
+        });
+      }
 
       if (response.ok) {
-        // Clear the form
         setAmount('');
+        setCategory('');
         setDescription('');
         setDate('');
-        // Refresh the list and summary from the database
+        setEditingId(null); // Reset the editing state
+        
         fetchExpenses();
         fetchSummary();
       }
     } catch (error) {
-      console.error('Failed to add expense:', error);
+      console.error('Failed to save expense:', error);
     }
   };
 
-  // 3. The function that runs when you click "Delete"
+  // 3. The function that runs when you click "Edit"
+  const handleEditClick = (expense: Expense) => {
+    setEditingId(expense.id);
+    setAmount(expense.amount.toString());
+    setCategory(expense.category);
+    setDescription(expense.description);
+    // The date comes back from the database with a timestamp, so we split it to get just YYYY-MM-DD
+    setDate(expense.expense_date.split('T')[0]); 
+  };
+
+  // 4. The function that runs when you click "Delete"
   const handleDeleteExpense = async (id: string) => {
     try {
       // We append the specific ID to the URL, exactly like we did in PowerShell!
@@ -147,7 +176,21 @@ function App() {
           <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
         </div>
 
-        <button type="submit">✨ Add Expense</button>
+        <button type="submit" style={{ background: editingId ? '#eab308' : undefined }}>
+          {editingId ? '💾 Save Changes' : '✨ Add Expense'}
+        </button>
+        {editingId && (
+          <button 
+            type="button" 
+            onClick={() => {
+              setEditingId(null);
+              setAmount(''); setCategory('Food'); setDescription(''); setDate('');
+            }}
+            style={{ background: '#475569', marginTop: '10px' }}
+          >
+            Cancel Edit
+          </button>
+        )}
       </form>
 
       {/* 4. Search and Filter Bar */}
@@ -186,14 +229,15 @@ function App() {
               </div>
               <div className="expense-amount" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
                 ${parseFloat(expense.amount).toFixed(2)}
-                <button
-                  className="delete-btn"
-                  onClick={() => handleDeleteExpense(expense.id)}
-                >
-                  Delete
-                </button>
+                <div>
+                  <button onClick={() => handleEditClick(expense)} className="delete-btn" style={{ background: '#eab308', marginRight: '10px' }}>
+                    ✏️ Edit
+                  </button>
+                  <button onClick={() => handleDeleteExpense(expense.id)} className="delete-btn">
+                    🗑️ Delete
+                  </button>
+                </div>
               </div>
-
             </div>
           ))
         )}

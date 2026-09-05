@@ -58,5 +58,23 @@ export const expenseRepository = {
     const result = await pool.query('SELECT SUM(amount) AS total FROM expenses;');
     // COALESCE handles the case where there are no rows yet
     return result.rows[0].total || 0;
+  },
+
+  // 5. Update an expense
+  updateExpense: async (id: string, amount: number, category: string, description: string, expense_date: string) => {
+    const updateQuery = `
+      UPDATE expenses 
+      SET amount = $1, category = $2, description = $3, expense_date = $4, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $5
+      RETURNING *;
+    `;
+    const values = [amount, category, description, expense_date, id];
+    const result = await pool.query(updateQuery, values);
+    
+    if (result.rowCount === 0) {
+      return null; // Return null if nothing was updated
+    }
+    
+    return result.rows[0];
   }
 };

@@ -18,6 +18,10 @@ router.post('/', validateExpense, expenseController.createExpense);
 // IMPORTANT: This must go BEFORE /:id so Express doesn't think "summary" is an ID!
 router.get('/summary', expenseController.getSummary);
 
+// PUT /api/expenses/:id
+// We use the same validateExpense bouncer to protect edits!
+router.put('/:id', validateExpense, expenseController.updateExpense);
+
 // DELETE /api/expenses/:id
 router.delete('/:id', expenseController.deleteExpense);
 

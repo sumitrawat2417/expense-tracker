@@ -28,5 +28,15 @@ export const expenseService = {
     return {
       total: parseFloat(total)
     };
+  },
+
+  modifyExpense: async (id: string, expenseData: { amount: number, category: string, description: string, expense_date: string }) => {
+    return await expenseRepository.updateExpense(
+      id,
+      expenseData.amount, 
+      expenseData.category, 
+      expenseData.description, 
+      expenseData.expense_date
+    );
   }
 };

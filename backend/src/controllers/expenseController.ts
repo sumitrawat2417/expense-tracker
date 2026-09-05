@@ -56,6 +56,23 @@ export const expenseController = {
       console.error('Error in getSummary controller:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
+  },
+
+  updateExpense: async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const updatedExpense = await expenseService.modifyExpense(id as string, req.body);
+      
+      if (!updatedExpense) {
+        res.status(404).json({ error: 'Expense not found' });
+        return;
+      }
+
+      res.json(updatedExpense);
+    } catch (error) {
+      console.error('Error in updateExpense controller:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
   }
 
 };
