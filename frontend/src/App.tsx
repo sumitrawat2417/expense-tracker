@@ -1,7 +1,14 @@
 import { useState, useEffect } from 'react';
+import {
+  AreaChart, Area, XAxis, YAxis, Tooltip,
+  ResponsiveContainer, PieChart, Pie, Cell,
+  BarChart, Bar,
+} from 'recharts';
 import './App.css';
 
-// ─── Types ───────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
+//  TYPES
+// ─────────────────────────────────────────────
 interface Expense {
   id: string;
   amount: string;
@@ -9,435 +16,601 @@ interface Expense {
   description: string;
   expense_date: string;
 }
-
 interface SummaryData {
   total: number;
   breakdown: { category: string; total: number }[];
 }
 
-// ─── Category Config ──────────────────────────────────────────────────────────
-const CATEGORIES = [
-  { name: 'Food',           icon: '🍔' },
-  { name: 'Transportation', icon: '🚗' },
-  { name: 'Entertainment',  icon: '🎮' },
-  { name: 'Bills',          icon: '⚡' },
-  { name: 'Shopping',       icon: '🛍️' },
-  { name: 'Health',         icon: '🏥' },
-  { name: 'Education',      icon: '📚' },
-  { name: 'Other',          icon: '📦' },
+// ─────────────────────────────────────────────
+//  DUMMY DATA  (used for charts & demo feel)
+// ─────────────────────────────────────────────
+const AREA_DATA = [
+  { day: '1 Sep', amount: 420 },  { day: '3 Sep', amount: 760 },
+  { day: '5 Sep', amount: 620 },  { day: '7 Sep', amount: 1100 },
+  { day: '9 Sep', amount: 970 },  { day: '11 Sep', amount: 1340 },
+  { day: '13 Sep', amount: 1210 },{ day: '15 Sep', amount: 1580 },
+  { day: '17 Sep', amount: 1450 },{ day: '19 Sep', amount: 1820 },
+  { day: '21 Sep', amount: 2100 },{ day: '23 Sep', amount: 1940 },
+  { day: '25 Sep', amount: 2260 },{ day: '27 Sep', amount: 2500 },
+  { day: '29 Sep', amount: 2362 },
 ];
 
-const getCategoryIcon = (name: string) =>
-  CATEGORIES.find(c => c.name === name)?.icon ?? '📦';
+const BAR_DATA = [
+  { month: 'Apr', amount: 18400 }, { month: 'May', amount: 22100 },
+  { month: 'Jun', amount: 19800 }, { month: 'Jul', amount: 24300 },
+  { month: 'Aug', amount: 21700 }, { month: 'Sep', amount: 23620 },
+];
 
-// Category accent colors for breakdown bars
-const BAR_COLORS: Record<string, string> = {
-  Food:           'linear-gradient(to right, #f97316, #fb923c)',
-  Transportation: 'linear-gradient(to right, #3b82f6, #60a5fa)',
-  Entertainment:  'linear-gradient(to right, #a855f7, #c084fc)',
-  Bills:          'linear-gradient(to right, #f59e0b, #fbbf24)',
-  Shopping:       'linear-gradient(to right, #ec4899, #f472b6)',
-  Health:         'linear-gradient(to right, #10b981, #34d399)',
-  Education:      'linear-gradient(to right, #14b8a6, #2dd4bf)',
-  Other:          'linear-gradient(to right, #64748b, #94a3b8)',
+const DUMMY_INCOME = 62400;
+
+const DEMO_TRANSACTIONS: {
+  id: string; icon: string; color: string; name: string;
+  sub: string; amount: number; date: string; group: string; type: 'expense'|'income';
+}[] = [
+  { id:'t1', icon:'☕', color:'#7C4B2A', name:'Blue Bottle Coffee',  sub:'Dining · Amex —3009',        amount:-675,    date:'7 Sep 2026', group:'TODAY',     type:'expense' },
+  { id:'t2', icon:'🚌', color:'#1a3a5c', name:'Muni Transit',        sub:'Transport · Everyday —4021', amount:-3500,   date:'7 Sep 2026', group:'TODAY',     type:'expense' },
+  { id:'t3', icon:'🥗', color:'#1a4a2e', name:'Sweetgreen',          sub:'Dining · Amex —3009',        amount:-1840,   date:'7 Sep 2026', group:'TODAY',     type:'expense' },
+  { id:'t4', icon:'🛒', color:'#1a3a1a', name:'Whole Foods Market',  sub:'Groceries · Amex —3009',     amount:-8422,   date:'6 Sep 2026', group:'YESTERDAY', type:'expense' },
+  { id:'t5', icon:'🎨', color:'#1e1a40', name:'Figma',               sub:'Subscriptions · Amex —3009', amount:-1500,   date:'6 Sep 2026', group:'YESTERDAY', type:'expense' },
+  { id:'t6', icon:'🚗', color:'#ff0084', name:'Lyft',                sub:'Transport · Amex —3009',     amount:-2160,   date:'6 Sep 2026', group:'YESTERDAY', type:'expense' },
+  { id:'t7', icon:'💰', color:'#1a3a2a', name:'Salary — Forbit',     sub:'Income · HDFC —8821',        amount:312000,  date:'5 Sep 2026', group:'5 SEP',     type:'income'  },
+  { id:'t8', icon:'📚', color:'#1a2a4a', name:'Udemy Course',        sub:'Education · Amex —3009',     amount:-1299,   date:'4 Sep 2026', group:'4 SEP',     type:'expense' },
+  { id:'t9', icon:'🏥', color:'#1a1a4a', name:'Apollo Pharmacy',     sub:'Health · Amex —3009',        amount:-560,    date:'3 Sep 2026', group:'3 SEP',     type:'expense' },
+];
+
+// ─────────────────────────────────────────────
+//  CATEGORY CONFIG
+// ─────────────────────────────────────────────
+const CATEGORIES = [
+  { name:'Food',           icon:'🍔', color:'#f97316' },
+  { name:'Transportation', icon:'🚗', color:'#3b82f6' },
+  { name:'Entertainment',  icon:'🎮', color:'#a855f7' },
+  { name:'Bills',          icon:'⚡', color:'#f59e0b' },
+  { name:'Shopping',       icon:'🛍️', color:'#ec4899' },
+  { name:'Health',         icon:'🏥', color:'#10b981' },
+  { name:'Education',      icon:'📚', color:'#14b8a6' },
+  { name:'Other',          icon:'📦', color:'#64748b' },
+];
+const getCatConfig = (name: string) =>
+  CATEGORIES.find(c => c.name === name) ?? CATEGORIES[7];
+
+// ─────────────────────────────────────────────
+//  CUSTOM TOOLTIP
+// ─────────────────────────────────────────────
+const ChartTooltip = ({ active, payload, label }: any) => {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="custom-tooltip">
+      <div className="custom-tooltip-label">{label}</div>
+      <strong>₹{payload[0].value.toLocaleString('en-IN')}</strong>
+    </div>
+  );
 };
 
-// ─── Main Component ───────────────────────────────────────────────────────────
-function App() {
-  // ── State ──
-  const [expenses,       setExpenses]       = useState<Expense[]>([]);
-  const [summary,        setSummary]        = useState<SummaryData>({ total: 0, breakdown: [] });
-
+// ─────────────────────────────────────────────
+//  MAIN APP
+// ─────────────────────────────────────────────
+export default function App() {
   // Auth
-  const [token,          setToken]          = useState<string | null>(localStorage.getItem('token'));
-  const [isLoginView,    setIsLoginView]    = useState(true);
-  const [authEmail,      setAuthEmail]      = useState('');
-  const [authPassword,   setAuthPassword]   = useState('');
-  const [authError,      setAuthError]      = useState('');
+  const [token,        setToken]        = useState<string|null>(localStorage.getItem('token'));
+  const [isLogin,      setIsLogin]      = useState(true);
+  const [authEmail,    setAuthEmail]    = useState('');
+  const [authPass,     setAuthPass]     = useState('');
+  const [authError,    setAuthError]    = useState('');
 
-  // Edit
-  const [editingId,      setEditingId]      = useState<string | null>(null);
+  // Data
+  const [expenses,     setExpenses]     = useState<Expense[]>([]);
+  const [summary,      setSummary]      = useState<SummaryData>({ total: 0, breakdown: [] });
 
-  // Search / Filter
-  const [searchQuery,    setSearchQuery]    = useState('');
-  const [filterCategory, setFilterCategory] = useState('');
+  // UI
+  const [activePage,   setActivePage]   = useState<'home'|'activity'|'insights'>('home');
+  const [period,       setPeriod]       = useState<'Week'|'Month'|'Year'>('Month');
+  const [showAdd,      setShowAdd]      = useState(false);
+  const [searchQ,      setSearchQ]      = useState('');
+  const [txFilter,     setTxFilter]     = useState<'All'|'Expenses'|'Income'>('All');
+  const [editingId,    setEditingId]    = useState<string|null>(null);
 
   // Form
-  const [amount,      setAmount]      = useState('');
-  const [category,    setCategory]    = useState('Food');
-  const [description, setDescription] = useState('');
-  const [date,        setDate]        = useState('');
+  const [fAmount,      setFAmount]      = useState('');
+  const [fCategory,    setFCategory]    = useState('Food');
+  const [fDesc,        setFDesc]        = useState('');
+  const [fDate,        setFDate]        = useState('');
+  const [fType,        setFType]        = useState<'Expense'|'Income'>('Expense');
 
   // ── Effects ──
-  useEffect(() => {
-    if (token) { fetchExpenses(); fetchSummary(); }
-  }, [searchQuery, filterCategory, token]);
+  useEffect(() => { if (token) { fetchExpenses(); fetchSummary(); } }, [token]);
 
-  // ── API Helpers ──
-  const authHeaders = () => ({
+  // ── Helpers ──
+  const authH = () => ({
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`,
   });
 
   const fetchSummary = () => {
     if (!token) return;
-    fetch('http://localhost:3000/api/expenses/summary', { headers: authHeaders() })
-      .then(res => { if (res.status === 401 || res.status === 403) handleLogout(); return res.json(); })
-      .then(data => setSummary(data))
-      .catch(console.error);
+    fetch('http://localhost:3000/api/expenses/summary', { headers: authH() })
+      .then(r => { if (r.status === 401) handleLogout(); return r.json(); })
+      .then(d => setSummary(d)).catch(console.error);
   };
 
   const fetchExpenses = () => {
-    let url = 'http://localhost:3000/api/expenses';
-    const params = new URLSearchParams();
-    if (searchQuery)    params.append('search',   searchQuery);
-    if (filterCategory) params.append('category', filterCategory);
-    if (params.toString()) url += '?' + params.toString();
-    fetch(url, { headers: authHeaders() })
-      .then(res => res.json())
-      .then(data => setExpenses(data))
-      .catch(console.error);
+    if (!token) return;
+    fetch('http://localhost:3000/api/expenses', { headers: authH() })
+      .then(r => r.json()).then(d => setExpenses(d)).catch(console.error);
   };
 
   // ── Auth ──
   const handleAuth = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setAuthError('');
-    const endpoint = isLoginView ? 'login' : 'register';
+    e.preventDefault(); setAuthError('');
     try {
-      const res  = await fetch(`http://localhost:3000/api/auth/${endpoint}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: authEmail, password: authPassword }),
+      const res  = await fetch(`http://localhost:3000/api/auth/${isLogin?'login':'register'}`, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ email: authEmail, password: authPass }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       localStorage.setItem('token', data.token);
-      setToken(data.token);
-      setAuthEmail(''); setAuthPassword('');
+      setToken(data.token); setAuthEmail(''); setAuthPass('');
     } catch (err: any) { setAuthError(err.message); }
   };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
-    setToken(null);
-    setExpenses([]);
-    setSummary({ total: 0, breakdown: [] });
+    setToken(null); setExpenses([]); setSummary({ total:0, breakdown:[] });
   };
 
   // ── CRUD ──
   const resetForm = () => {
-    setAmount(''); setCategory('Food'); setDescription(''); setDate(''); setEditingId(null);
+    setFAmount(''); setFCategory('Food'); setFDesc('');
+    setFDate(''); setEditingId(null); setShowAdd(false);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    const body = JSON.stringify({ amount: parseFloat(amount), category, description, expense_date: date });
-    const isEdit = !!editingId;
-    const url    = isEdit ? `http://localhost:3000/api/expenses/${editingId}` : 'http://localhost:3000/api/expenses';
+    const body = JSON.stringify({
+      amount: parseFloat(fAmount), category: fCategory,
+      description: fDesc, expense_date: fDate,
+    });
+    const url = editingId
+      ? `http://localhost:3000/api/expenses/${editingId}`
+      : 'http://localhost:3000/api/expenses';
     try {
-      const res = await fetch(url, { method: isEdit ? 'PUT' : 'POST', headers: authHeaders(), body });
+      const res = await fetch(url, { method: editingId?'PUT':'POST', headers: authH(), body });
       if (res.ok) { resetForm(); fetchExpenses(); fetchSummary(); }
     } catch (err) { console.error(err); }
   };
 
-  const handleEditClick = (expense: Expense) => {
-    setEditingId(expense.id);
-    setAmount(expense.amount.toString());
-    setCategory(expense.category);
-    setDescription(expense.description);
-    setDate(expense.expense_date.split('T')[0]);
+  const handleEditClick = (exp: Expense) => {
+    setEditingId(exp.id); setFAmount(exp.amount.toString());
+    setFCategory(exp.category); setFDesc(exp.description);
+    setFDate(exp.expense_date.split('T')[0]); setShowAdd(true);
   };
 
   const handleDelete = async (id: string) => {
     try {
-      const res = await fetch(`http://localhost:3000/api/expenses/${id}`, { method: 'DELETE', headers: authHeaders() });
+      const res = await fetch(`http://localhost:3000/api/expenses/${id}`, { method:'DELETE', headers: authH() });
       if (res.ok) { fetchExpenses(); fetchSummary(); }
     } catch (err) { console.error(err); }
   };
 
-  // ── Auth Screen ──────────────────────────────────────────────────────────────
-  if (!token) {
-    return (
-      <div className="auth-screen">
-        <div className="auth-card">
-          {/* Logo */}
-          <div className="auth-logo">
-            <div className="auth-logo-icon">💸</div>
-            <span className="auth-logo-text">FinTrack</span>
+  // ── Derived ──
+  const totalSpent    = summary.total || 0;
+  const change        = '+9% vs last month';
+  const maxBreakdown  = Math.max(...summary.breakdown.map(b => b.total), 1);
+
+  // Merge real breakdown with category colors for donut
+  const donutData = summary.breakdown.length > 0
+    ? summary.breakdown.map(b => ({ ...b, color: getCatConfig(b.category).color }))
+    : CATEGORIES.slice(0,5).map((c,i)=>({ category:c.name, total:[48,16,13,11,12][i], color:c.color }));
+
+  const donutTotal = donutData.reduce((s,d)=>s+d.total, 0);
+
+  // Filter transactions (real expenses)
+  const realTxs = expenses.map(e => ({
+    id: e.id, icon: getCatConfig(e.category).icon,
+    color: getCatConfig(e.category).color + '33',
+    name: e.description, sub: e.category,
+    amount: -parseFloat(e.amount),
+    date: new Date(e.expense_date).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }),
+    group: 'MY EXPENSES', type: 'expense' as const,
+  }));
+
+  const allTxs = [...DEMO_TRANSACTIONS, ...realTxs];
+  const filteredTxs = allTxs
+    .filter(t => txFilter === 'All' || (txFilter === 'Expenses' ? t.type==='expense' : t.type==='income'))
+    .filter(t => !searchQ || t.name.toLowerCase().includes(searchQ.toLowerCase()));
+
+  const txGroups = filteredTxs.reduce<Record<string,typeof allTxs>>((acc, t) => {
+    (acc[t.group] = acc[t.group] || []).push(t); return acc;
+  }, {});
+
+  // ── AUTH SCREEN ──────────────────────────────────────────────────────────────
+  if (!token) return (
+    <div className="auth-screen">
+      <div className="auth-card">
+        <div className="auth-logo">
+          <div className="auth-logo-mark">💸</div>
+          <span className="auth-logo-name">FinTrack</span>
+        </div>
+        <h1 className="auth-h1">{isLogin ? 'Welcome back' : 'Get started'}</h1>
+        <p className="auth-sub">
+          {isLogin ? 'Sign in to your personal finance dashboard.' : 'Create your private expense tracker account.'}
+        </p>
+        {authError && <div className="auth-error">{authError}</div>}
+        <form onSubmit={handleAuth}>
+          <div className="auth-field">
+            <label className="auth-label">Email</label>
+            <input className="auth-input" type="email" placeholder="you@example.com"
+              value={authEmail} onChange={e=>setAuthEmail(e.target.value)} required />
           </div>
-
-          <h1 className="auth-headline">
-            {isLoginView ? 'Welcome back' : 'Create account'}
-          </h1>
-          <p className="auth-subline">
-            {isLoginView
-              ? 'Sign in to your personal finance dashboard.'
-              : 'Start tracking your expenses privately and securely.'}
-          </p>
-
-          {authError && <div className="auth-error">{authError}</div>}
-
-          <form onSubmit={handleAuth}>
-            <div className="form-field">
-              <label className="form-label">Email</label>
-              <input
-                className="form-input"
-                type="email"
-                placeholder="you@example.com"
-                value={authEmail}
-                onChange={e => setAuthEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="form-field">
-              <label className="form-label">Password</label>
-              <input
-                className="form-input"
-                type="password"
-                placeholder="••••••••"
-                value={authPassword}
-                onChange={e => setAuthPassword(e.target.value)}
-                required
-              />
-            </div>
-            <button className="btn-primary" type="submit" style={{ marginTop: '8px' }}>
-              {isLoginView ? 'Sign In →' : 'Create Account →'}
-            </button>
-          </form>
-
-          <p className="auth-toggle">
-            {isLoginView ? "Don't have an account? " : 'Already have an account? '}
-            <span onClick={() => { setIsLoginView(!isLoginView); setAuthError(''); }}>
-              {isLoginView ? 'Sign up' : 'Sign in'}
-            </span>
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  // ── Max amount for breakdown bar widths ──
-  const maxBreakdown = Math.max(...summary.breakdown.map(b => b.total), 1);
-
-  // ── Dashboard ────────────────────────────────────────────────────────────────
-  return (
-    <div className="app-wrapper">
-      {/* ── Top Bar ── */}
-      <header className="topbar">
-        <div className="topbar-brand">
-          <div className="topbar-logo-icon">💸</div>
-          <span className="topbar-name">FinTrack</span>
-        </div>
-        <div className="topbar-right">
-          <span className="topbar-date">
-            {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}
+          <div className="auth-field">
+            <label className="auth-label">Password</label>
+            <input className="auth-input" type="password" placeholder="••••••••"
+              value={authPass} onChange={e=>setAuthPass(e.target.value)} required />
+          </div>
+          <button className="auth-submit" type="submit">
+            {isLogin ? 'Sign In →' : 'Create Account →'}
+          </button>
+        </form>
+        <p className="auth-switch">
+          {isLogin ? "Don't have an account? " : "Already have an account? "}
+          <span onClick={()=>{setIsLogin(!isLogin);setAuthError('');}}>
+            {isLogin ? 'Sign up' : 'Sign in'}
           </span>
-          <button className="logout-btn" onClick={handleLogout}>Sign Out</button>
+        </p>
+      </div>
+    </div>
+  );
+
+  // ── DASHBOARD ────────────────────────────────────────────────────────────────
+  return (
+    <div className="app-shell">
+      {/* ── Sidebar ── */}
+      <nav className="sidebar">
+        <div className="sidebar-logo">
+          <div className="sidebar-logo-mark">💸</div>
+          <span className="sidebar-logo-name">FinTrack</span>
         </div>
-      </header>
 
-      {/* ── Main Content ── */}
-      <main className="app-main">
-        <div className="main-grid">
+        <span className="nav-section-label">Main</span>
+        {([
+          { id:'home',     icon:'🏠', label:'Home'     },
+          { id:'activity', icon:'⚡', label:'Activity'  },
+          { id:'insights', icon:'📊', label:'Insights'  },
+        ] as const).map(item => (
+          <button key={item.id}
+            className={`nav-item${activePage===item.id?' active':''}`}
+            onClick={()=>setActivePage(item.id)}
+          >
+            <span className="nav-icon">{item.icon}</span>{item.label}
+          </button>
+        ))}
 
-          {/* ── LEFT COLUMN ── */}
-          <div className="left-col">
+        <span className="nav-section-label">Account</span>
+        <button className="nav-item" onClick={()=>setShowAdd(true)}>
+          <span className="nav-icon">➕</span>Add Expense
+        </button>
 
-            {/* Summary Card */}
-            <div className="summary-card">
-              <p className="summary-label">Total Spent</p>
-              <div className="summary-total">
-                <span className="currency">₹</span>
-                {summary.total.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+        <div className="sidebar-bottom">
+          <div className="sidebar-user" onClick={handleLogout} title="Click to sign out">
+            <div className="user-avatar">
+              {authEmail ? authEmail[0].toUpperCase() : 'U'}
+            </div>
+            <span className="user-email">{authEmail || 'My Account'}</span>
+            <span className="signout-icon">↩</span>
+          </div>
+        </div>
+      </nav>
+
+      {/* ── Page Content ── */}
+      <main className="page-content">
+
+        {/* ════════ HOME PAGE ════════ */}
+        {activePage === 'home' && (
+          <>
+            <div className="page-header">
+              <div>
+                <div className="page-title">Net Cash Flow · Sep</div>
+                <div className="page-subtitle">🟢 Updated just now · connected to backend</div>
+              </div>
+              <div className="page-date">
+                {new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}
+              </div>
+            </div>
+
+            <div className="home-grid">
+              {/* Hero chart card */}
+              <div className="hero-card">
+                <div className="hero-label">Total Spent · September</div>
+                <div className="hero-amount">
+                  <span className="currency">₹</span>
+                  {totalSpent > 0
+                    ? totalSpent.toLocaleString('en-IN', {minimumFractionDigits:2})
+                    : '23,621.80'}
+                </div>
+                <span className="hero-badge">▲ {change}</span>
+
+                <div className="period-toggle">
+                  {(['Week','Month','Year'] as const).map(p=>(
+                    <button key={p} className={`period-btn${period===p?' active':''}`}
+                      onClick={()=>setPeriod(p)}>{p}</button>
+                  ))}
+                </div>
+
+                {/* Area Chart */}
+                <ResponsiveContainer width="100%" height={180}>
+                  <AreaChart data={AREA_DATA} margin={{top:0,right:0,left:-30,bottom:0}}>
+                    <defs>
+                      <linearGradient id="goldGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%"  stopColor="#f5a623" stopOpacity={0.25}/>
+                        <stop offset="95%" stopColor="#f5a623" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <XAxis dataKey="day" tick={{fill:'#55556a',fontSize:11}} axisLine={false} tickLine={false} />
+                    <YAxis tick={{fill:'#55556a',fontSize:11}} axisLine={false} tickLine={false} tickFormatter={v=>`₹${v}`} />
+                    <Tooltip content={<ChartTooltip/>} cursor={{stroke:'rgba(245,166,35,0.2)',strokeWidth:1}}/>
+                    <Area type="monotone" dataKey="amount" stroke="#f5a623" strokeWidth={2.5}
+                      fill="url(#goldGrad)" dot={false} activeDot={{r:5,fill:'#f5a623',strokeWidth:0}}/>
+                  </AreaChart>
+                </ResponsiveContainer>
               </div>
 
-              {summary.breakdown.length > 0 && (
-                <div className="breakdown-section">
-                  {summary.breakdown.map(item => (
-                    <div key={item.category} className="breakdown-row">
-                      <div className="breakdown-row-header">
-                        <span className="breakdown-cat-name">
-                          {getCategoryIcon(item.category)} {item.category}
-                        </span>
-                        <span className="breakdown-cat-amount">
-                          ₹{item.total.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+              {/* Donut card */}
+              <div className="donut-card">
+                <div className="card-label">Spending Breakdown</div>
+                <div className="donut-wrap">
+                  <ResponsiveContainer width={160} height={160}>
+                    <PieChart>
+                      <Pie data={donutData} dataKey="total" innerRadius={52} outerRadius={72}
+                        paddingAngle={3} stroke="none">
+                        {donutData.map((d,i)=><Cell key={i} fill={d.color}/>)}
+                      </Pie>
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="donut-center">
+                    <div className="donut-center-label">SPENT</div>
+                    <div className="donut-center-val">
+                      ₹{totalSpent > 0
+                        ? Math.round(totalSpent/1000)+'k'
+                        : '23k'}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="cat-legend">
+                  {donutData.map(d=>(
+                    <div key={d.category} className="cat-legend-row">
+                      <div className="cat-legend-left">
+                        <div className="cat-dot" style={{background:d.color}}/>
+                        <span className="cat-legend-name">
+                          {getCatConfig(d.category).icon} {d.category}
                         </span>
                       </div>
-                      <div className="breakdown-bar-track">
-                        <div
-                          className="breakdown-bar-fill"
-                          style={{
-                            width: `${(item.total / maxBreakdown) * 100}%`,
-                            background: BAR_COLORS[item.category] ?? BAR_COLORS['Other'],
-                          }}
-                        />
-                      </div>
+                      <span className="cat-legend-pct">
+                        {Math.round((d.total/donutTotal)*100)}%
+                      </span>
                     </div>
                   ))}
                 </div>
-              )}
-            </div>
-
-            {/* Add / Edit Form */}
-            <div className="card form-card">
-              <h2 className="form-title">
-                {editingId ? '✏️  Edit Expense' : '+ Add Expense'}
-              </h2>
-
-              <form onSubmit={handleSubmit}>
-                {/* Amount */}
-                <div className="form-field">
-                  <label className="form-label">Amount</label>
-                  <div className="amount-input-wrap">
-                    <span className="amount-prefix">₹</span>
-                    <input
-                      className="form-input amount-field"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      placeholder="0.00"
-                      value={amount}
-                      onChange={e => setAmount(e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
-
-                {/* Category chips */}
-                <div className="form-field">
-                  <label className="form-label">Category</label>
-                  <div className="category-chips">
-                    {CATEGORIES.map(cat => (
-                      <button
-                        key={cat.name}
-                        type="button"
-                        className={`category-chip${category === cat.name ? ' active' : ''}`}
-                        onClick={() => setCategory(cat.name)}
-                      >
-                        <span className="category-chip-icon">{cat.icon}</span>
-                        <span className="category-chip-label">{cat.name}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Description */}
-                <div className="form-field">
-                  <label className="form-label">Description</label>
-                  <input
-                    className="form-input"
-                    type="text"
-                    placeholder="What did you spend on?"
-                    value={description}
-                    onChange={e => setDescription(e.target.value)}
-                    required
-                  />
-                </div>
-
-                {/* Date */}
-                <div className="form-field">
-                  <label className="form-label">Date</label>
-                  <input
-                    className="form-input"
-                    type="date"
-                    value={date}
-                    onChange={e => setDate(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <button type="submit" className={`btn-primary${editingId ? ' btn-edit' : ''}`}>
-                  {editingId ? '💾  Save Changes' : '✨  Add Expense'}
-                </button>
-                {editingId && (
-                  <button type="button" className="btn-secondary" onClick={resetForm}>
-                    Cancel
-                  </button>
-                )}
-              </form>
-            </div>
-          </div>
-
-          {/* ── RIGHT COLUMN ── */}
-          <div className="right-col">
-
-            {/* Filters Bar */}
-            <div className="filters-bar">
-              <div className="search-wrap">
-                <span className="search-icon">🔍</span>
-                <input
-                  className="form-input"
-                  type="text"
-                  placeholder="Search expenses..."
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                />
               </div>
-              <select
-                className="form-input filter-select"
-                value={filterCategory}
-                onChange={e => setFilterCategory(e.target.value)}
-              >
-                <option value="">All Categories</option>
-                {CATEGORIES.map(cat => (
-                  <option key={cat.name} value={cat.name}>{cat.icon} {cat.name}</option>
-                ))}
-              </select>
-            </div>
 
-            {/* Expense List */}
-            <div className="expense-list">
-              {expenses.length === 0 ? (
-                <div className="expense-empty">
-                  <span className="expense-empty-icon">📭</span>
-                  <p>No expenses found. Add your first one!</p>
+              {/* IN / OUT row */}
+              <div className="inout-grid">
+                <div className="inout-card">
+                  <div className="inout-label">In · September</div>
+                  <div className="inout-amount green">₹{(DUMMY_INCOME).toLocaleString('en-IN')}</div>
+                  <div className="inout-bar green"/>
                 </div>
-              ) : (
-                expenses.map(expense => (
-                  <div key={expense.id} className={`expense-item cat-${expense.category.replace(/\s+/g, '')}`}>
-                    {/* Category icon */}
-                    <div className="expense-cat-icon">
-                      {getCategoryIcon(expense.category)}
-                    </div>
-
-                    {/* Body */}
-                    <div className="expense-body">
-                      <div className="expense-desc">{expense.description}</div>
-                      <div className="expense-meta">
-                        <span className="expense-cat-badge">{expense.category}</span>
-                        <span className="expense-date">
-                          {new Date(expense.expense_date).toLocaleDateString('en-IN', {
-                            day: 'numeric', month: 'short', year: 'numeric'
-                          })}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Right side */}
-                    <div className="expense-right">
-                      <span className="expense-amount-val">
-                        ₹{parseFloat(expense.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                      </span>
-                      <div className="expense-actions">
-                        <button className="action-btn edit-btn" onClick={() => handleEditClick(expense)}>
-                          ✏️ Edit
-                        </button>
-                        <button className="action-btn del-btn" onClick={() => handleDelete(expense.id)}>
-                          🗑️ Delete
-                        </button>
-                      </div>
-                    </div>
+                <div className="inout-card">
+                  <div className="inout-label">Out · September</div>
+                  <div className="inout-amount red">
+                    ₹{totalSpent>0 ? totalSpent.toLocaleString('en-IN',{maximumFractionDigits:0}) : '23,622'}
                   </div>
-                ))
-              )}
+                  <div className="inout-bar red"/>
+                </div>
+              </div>
             </div>
-          </div>
+          </>
+        )}
 
-        </div>
+        {/* ════════ ACTIVITY PAGE ════════ */}
+        {activePage === 'activity' && (
+          <>
+            <div className="page-header">
+              <div>
+                <div className="page-title">Activity</div>
+                <div className="page-subtitle">{allTxs.length} transactions this month</div>
+              </div>
+            </div>
+
+            <div className="search-box">
+              <span className="search-icon-pos">🔍</span>
+              <input className="search-input" placeholder="Search merchants, notes, amounts..."
+                value={searchQ} onChange={e=>setSearchQ(e.target.value)}/>
+            </div>
+
+            <div className="activity-filters">
+              {(['All','Expenses','Income'] as const).map(f=>(
+                <button key={f} className={`filter-chip${txFilter===f?' active':''}`}
+                  onClick={()=>setTxFilter(f)}>{f}</button>
+              ))}
+            </div>
+
+            {Object.entries(txGroups).map(([group, txs])=>{
+              const groupTotal = txs.reduce((s,t)=>s+t.amount,0);
+              return (
+                <div key={group}>
+                  <div className="tx-group-label">
+                    <span>{group}</span>
+                    <span className="tx-group-total" style={{color: groupTotal>=0?'#00d084':'#ff9999'}}>
+                      {groupTotal>=0?'+':''}{(groupTotal/100).toFixed(2).replace('-','−')} 
+                    </span>
+                  </div>
+                  {txs.map(t=>(
+                    <div key={t.id} className="tx-item">
+                      <div className="tx-logo" style={{background:t.color}}>
+                        {t.icon}
+                      </div>
+                      <div className="tx-body">
+                        <div className="tx-name">{t.name}</div>
+                        <div className="tx-sub">{t.sub}</div>
+                      </div>
+                      <div className="tx-right">
+                        <div className={`tx-amount ${t.type}`} style={{color: t.type==='income'?'#00d084':'#f0f0f5'}}>
+                          {t.type==='income' ? '+' : ''}₹{Math.abs(t.amount/100).toLocaleString('en-IN',{minimumFractionDigits:2})}
+                        </div>
+                        <div className="tx-date">{t.date}</div>
+                      </div>
+                      {t.type==='expense' && expenses.find(e=>e.id===t.id) && (
+                        <div style={{display:'flex',gap:'6px',marginLeft:'12px'}}>
+                          <button style={{background:'transparent',border:'1px solid rgba(245,166,35,0.3)',color:'#f5a623',padding:'4px 10px',borderRadius:'6px',cursor:'pointer',fontSize:'0.75rem',fontWeight:600}}
+                            onClick={()=>handleEditClick(expenses.find(e=>e.id===t.id)!)}>Edit</button>
+                          <button style={{background:'transparent',border:'1px solid rgba(255,77,77,0.3)',color:'#ff4d4d',padding:'4px 10px',borderRadius:'6px',cursor:'pointer',fontSize:'0.75rem',fontWeight:600}}
+                            onClick={()=>handleDelete(t.id)}>Del</button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              );
+            })}
+          </>
+        )}
+
+        {/* ════════ INSIGHTS PAGE ════════ */}
+        {activePage === 'insights' && (
+          <>
+            <div className="page-header">
+              <div>
+                <div className="page-title">Insights</div>
+                <div className="page-subtitle">Your financial health at a glance</div>
+              </div>
+            </div>
+
+            {/* Monthly bar chart */}
+            <div className="card" style={{marginBottom:'20px'}}>
+              <div className="card-label">Monthly Spending — Last 6 Months</div>
+              <ResponsiveContainer width="100%" height={220}>
+                <BarChart data={BAR_DATA} margin={{top:10,right:0,left:-20,bottom:0}}>
+                  <XAxis dataKey="month" tick={{fill:'#55556a',fontSize:12}} axisLine={false} tickLine={false}/>
+                  <YAxis tick={{fill:'#55556a',fontSize:11}} axisLine={false} tickLine={false}
+                    tickFormatter={v=>`₹${(v/1000).toFixed(0)}k`}/>
+                  <Tooltip content={<ChartTooltip/>}/>
+                  <Bar dataKey="amount" radius={[6,6,0,0]}>
+                    {BAR_DATA.map((_,i)=>(
+                      <Cell key={i} fill={i===BAR_DATA.length-1?'#f5a623':'#1c1c28'}
+                        stroke={i===BAR_DATA.length-1?'none':'rgba(255,255,255,0.07)'}/>
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="insights-grid">
+              <div className="stat-card">
+                <div className="stat-card-label">Avg. Daily Spend</div>
+                <div className="stat-card-val">₹{totalSpent>0 ? Math.round(totalSpent/30).toLocaleString('en-IN') : '787'}</div>
+                <div className="stat-card-sub">Based on current month</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-card-label">Largest Category</div>
+                <div className="stat-card-val">
+                  {summary.breakdown[0]?.category ?? 'Bills'}
+                </div>
+                <div className="stat-card-sub">
+                  ₹{summary.breakdown[0]
+                    ? summary.breakdown[0].total.toLocaleString('en-IN',{maximumFractionDigits:0})
+                    : '11,340'} this month
+                </div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-card-label">Savings Rate</div>
+                <div className="stat-card-val" style={{color:'#00d084'}}>
+                  {totalSpent > 0
+                    ? Math.max(0, Math.round((1 - totalSpent / DUMMY_INCOME) * 100)) + '%'
+                    : '62%'}
+                </div>
+                <div className="stat-card-sub">Of monthly income saved</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-card-label">Health Score</div>
+                <div className="health-ring-wrap">
+                  <div className="health-score-num" style={{color:'#00d084'}}>82</div>
+                  <div>
+                    <div className="health-score-label">Strong 💪</div>
+                    <div className="health-score-sub">▲ 4 pts this month</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
       </main>
+
+      {/* ── FAB ── */}
+      <button className="fab" onClick={()=>setShowAdd(true)} title="Add expense">＋</button>
+
+      {/* ── Add / Edit Panel ── */}
+      {showAdd && (
+        <div className="add-overlay" onClick={e=>{ if(e.target===e.currentTarget) resetForm(); }}>
+          <div className="add-panel">
+            <div className="add-panel-header">
+              <span className="add-panel-title">{editingId ? 'Edit Expense' : 'New Transaction'}</span>
+              <button className="close-btn" onClick={resetForm}>✕</button>
+            </div>
+
+            <div className="type-toggle">
+              {(['Expense','Income'] as const).map(t=>(
+                <button key={t} className={`type-btn${fType===t?' active':''}`} onClick={()=>setFType(t)}>{t}</button>
+              ))}
+            </div>
+
+            <div className="amount-display">
+              {fAmount
+                ? <><span className="cur-sym">₹</span>{parseFloat(fAmount).toLocaleString('en-IN')}</>
+                : <span className="placeholder">₹0</span>
+              }
+            </div>
+
+            <form onSubmit={handleSave}>
+              <div className="field-row">
+                <label className="field-label">Amount</label>
+                <input className="field-input" type="number" step="0.01" min="0"
+                  placeholder="Enter amount" value={fAmount} onChange={e=>setFAmount(e.target.value)} required/>
+              </div>
+
+              <div className="field-row">
+                <label className="field-label">Category</label>
+                <div className="cat-chips">
+                  {CATEGORIES.map(c=>(
+                    <button key={c.name} type="button"
+                      className={`cat-chip${fCategory===c.name?' sel':''}`}
+                      onClick={()=>setFCategory(c.name)}>
+                      {c.icon} {c.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="field-row">
+                <label className="field-label">Description</label>
+                <input className="field-input" type="text" placeholder="What did you spend on?"
+                  value={fDesc} onChange={e=>setFDesc(e.target.value)} required/>
+              </div>
+
+              <div className="field-row">
+                <label className="field-label">Date</label>
+                <input className="field-input" type="date"
+                  value={fDate} onChange={e=>setFDate(e.target.value)} required/>
+              </div>
+
+              <button type="submit" className="save-btn">
+                {editingId ? '💾  Save Changes' : '✨  Add Transaction'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-
-export default App;
