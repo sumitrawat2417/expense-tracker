@@ -568,3 +568,107 @@ input, select, button, textarea {
 ::-webkit-scrollbar { width:5px; }
 ::-webkit-scrollbar-track { background:transparent; }
 ::-webkit-scrollbar-thumb { background:var(--bg-elevated); border-radius:99px; }
+
+/* ============================================================
+   MOBILE RESPONSIVENESS
+   ============================================================ */
+@media (max-width: 768px) {
+  .app-shell {
+    flex-direction: column;
+  }
+  
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: fixed;
+    bottom: 0;
+    top: auto;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    padding: 12px 16px;
+    border-right: none;
+    border-top: 1px solid var(--border);
+    z-index: 90; /* Below FAB */
+    background: rgba(17, 17, 24, 0.95);
+    backdrop-filter: blur(10px);
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  }
+  
+  /* Hide unnecessary sidebar items on mobile */
+  .sidebar-logo,
+  .nav-section-label,
+  .sidebar-bottom,
+  .hide-on-mobile {
+    display: none !important;
+  }
+  
+  .nav-item {
+    flex-direction: column;
+    padding: 6px;
+    gap: 4px;
+    font-size: 0.65rem;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: auto;
+  }
+  
+  .nav-item.active { background: transparent; }
+  
+  .nav-icon {
+    font-size: 1.4rem;
+  }
+  
+  .page-content {
+    padding: 24px 20px 100px; /* Extra bottom padding for mobile nav */
+  }
+  
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .page-date {
+    text-align: left;
+  }
+  
+  .hero-amount {
+    font-size: 2.8rem;
+  }
+  
+  .inout-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .add-overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+  
+  .add-panel {
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    padding: 24px 24px 32px;
+  }
+
+  .fab {
+    bottom: 90px; /* Above mobile nav */
+    right: 20px;
+  }
+  
+  .donut-wrap { width: 140px; height: 140px; }
+  .donut-center-val { font-size: 1.2rem; }
+  
+  .tx-item { flex-wrap: wrap; }
+  .tx-right { 
+    width: 100%; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-top: 8px; 
+  }
+  
+  .auth-card { padding: 32px 24px; border-radius: var(--radius-lg); }
+  .auth-h1 { font-size: 1.5rem; }
+}

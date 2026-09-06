@@ -286,8 +286,8 @@ export default function App() {
           </button>
         ))}
 
-        <span className="nav-section-label">Account</span>
-        <button className="nav-item" onClick={()=>setShowAdd(true)}>
+        <span className="nav-section-label hide-on-mobile">Account</span>
+        <button className="nav-item hide-on-mobile" onClick={()=>setShowAdd(true)}>
           <span className="nav-icon">➕</span>Add Expense
         </button>
 
