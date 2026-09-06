@@ -9,7 +9,7 @@ import {
   Plus, LogOut, Search, CircleCheck,
   Coffee, Bus, Utensils, ShoppingCart, Paintbrush, Car, HandCoins, GraduationCap, Pill,
   Pizza, Ticket, Zap, ShoppingBag, HeartPulse, BookOpen, Package,
-  TrendingUp, Inbox, X, Save, Edit3, Trash2, CheckCircle2
+  TrendingUp, Inbox, X, Save, Edit3, Trash2, CheckCircle2, User, Settings, Shield, Bell
 } from 'lucide-react';
 import './App.css';
 
@@ -110,7 +110,7 @@ export default function App() {
   const [summary,      setSummary]      = useState<SummaryData>({ total: 0, breakdown: [] });
 
   // UI
-  const [activePage,   setActivePage]   = useState<'home'|'activity'|'insights'>('home');
+  const [activePage,   setActivePage]   = useState<'home'|'activity'|'insights'|'profile'>('home');
   const [period,       setPeriod]       = useState<'Week'|'Month'|'Year'>('Month');
   const [showAdd,      setShowAdd]      = useState(false);
   const [searchQ,      setSearchQ]      = useState('');
@@ -284,6 +284,7 @@ export default function App() {
           { id:'home',     icon:<Home size={20}/>, label:'Home'     },
           { id:'activity', icon:<Activity size={20}/>, label:'Activity'  },
           { id:'insights', icon:<PieChartIcon size={20}/>, label:'Insights'  },
+          { id:'profile',  icon:<User size={20}/>, label:'Profile'  },
         ] as const).map(item => (
           <button key={item.id}
             className={`nav-item${activePage===item.id?' active':''}`}
@@ -297,16 +298,6 @@ export default function App() {
         <button className="nav-item hide-on-mobile" onClick={()=>setShowAdd(true)}>
           <span className="nav-icon"><Plus size={20}/></span>Add Expense
         </button>
-
-        <div className="sidebar-bottom">
-          <div className="sidebar-user" onClick={handleLogout} title="Click to sign out">
-            <div className="user-avatar">
-              {authEmail ? authEmail[0].toUpperCase() : 'U'}
-            </div>
-            <span className="user-email">{authEmail || 'My Account'}</span>
-            <span className="signout-icon"><LogOut size={16}/></span>
-          </div>
-        </div>
       </nav>
 
       {/* ── Page Content ── */}
@@ -551,6 +542,51 @@ export default function App() {
                   </div>
                 </div>
               </div>
+            </div>
+          </>
+        )}
+
+        {/* ════════ PROFILE PAGE ════════ */}
+        {activePage === 'profile' && (
+          <>
+            <div className="page-header">
+              <div>
+                <div className="page-title">Profile & Settings</div>
+                <div className="page-subtitle">Manage your account preferences</div>
+              </div>
+            </div>
+
+            <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '24px' }}>
+              <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--blue), var(--violet))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 700, color: 'white', flexShrink: 0 }}>
+                {authEmail ? authEmail[0].toUpperCase() : 'U'}
+              </div>
+              <div>
+                <div style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-1)' }}>{authEmail || 'My Account'}</div>
+                <div style={{ fontSize: '0.9rem', color: 'var(--text-2)', marginTop: '4px' }}>Free Plan</div>
+              </div>
+            </div>
+
+            <div className="card" style={{ marginBottom: '24px', padding: 0, overflow: 'hidden' }}>
+              <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)', fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '1px' }}>Preferences</div>
+              
+              <div className="settings-row">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}><Settings size={18} color="var(--text-2)"/> General Settings</div>
+                <div style={{ color: 'var(--text-3)' }}>&gt;</div>
+              </div>
+              <div className="settings-row">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}><Bell size={18} color="var(--text-2)"/> Notifications</div>
+                <div style={{ color: 'var(--text-3)' }}>&gt;</div>
+              </div>
+              <div className="settings-row">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}><Shield size={18} color="var(--text-2)"/> Privacy & Security</div>
+                <div style={{ color: 'var(--text-3)' }}>&gt;</div>
+              </div>
+            </div>
+
+            <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+               <button onClick={handleLogout} style={{ width: '100%', padding: '20px 24px', background: 'transparent', border: 'none', color: 'var(--red)', fontSize: '1rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', textAlign: 'left' }}>
+                 <LogOut size={20}/> Sign Out
+               </button>
             </div>
           </>
         )}
