@@ -338,7 +338,7 @@ export default function App() {
                 </div>
 
                 {/* Area Chart */}
-                <ResponsiveContainer width="100%" height={180}>
+                <ResponsiveContainer width="100%" height={150}>
                   <AreaChart data={AREA_DATA} margin={{top:0,right:0,left:-30,bottom:0}}>
                     <defs>
                       <linearGradient id="goldGrad" x1="0" y1="0" x2="0" y2="1">
@@ -359,9 +359,9 @@ export default function App() {
               <div className="donut-card">
                 <div className="card-label">Spending Breakdown</div>
                 <div className="donut-wrap">
-                  <ResponsiveContainer width={160} height={160}>
+                  <ResponsiveContainer width={130} height={130}>
                     <PieChart>
-                      <Pie data={donutData} dataKey="total" innerRadius={52} outerRadius={72}
+                      <Pie data={donutData} dataKey="total" innerRadius={42} outerRadius={60}
                         paddingAngle={3} stroke="none">
                         {donutData.map((d,i)=><Cell key={i} fill={d.color}/>)}
                       </Pie>
@@ -488,9 +488,9 @@ export default function App() {
             </div>
 
             {/* Monthly bar chart */}
-            <div className="card" style={{marginBottom:'20px'}}>
+            <div className="card" style={{marginBottom:'14px'}}>
               <div className="card-label">Monthly Spending — Last 6 Months</div>
-              <ResponsiveContainer width="100%" height={220}>
+              <ResponsiveContainer width="100%" height={180}>
                 <BarChart data={BAR_DATA} margin={{top:10,right:0,left:-20,bottom:0}}>
                   <XAxis dataKey="month" tick={{fill:'#55556a',fontSize:12}} axisLine={false} tickLine={false}/>
                   <YAxis tick={{fill:'#55556a',fontSize:11}} axisLine={false} tickLine={false}
@@ -556,17 +556,17 @@ export default function App() {
               </div>
             </div>
 
-            <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '24px' }}>
-              <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--blue), var(--violet))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 700, color: 'white', flexShrink: 0 }}>
+            <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--blue), var(--violet))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', fontWeight: 700, color: 'white', flexShrink: 0 }}>
                 {authEmail ? authEmail[0].toUpperCase() : 'U'}
               </div>
               <div>
-                <div style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-1)' }}>{authEmail || 'My Account'}</div>
-                <div style={{ fontSize: '0.9rem', color: 'var(--text-2)', marginTop: '4px' }}>Free Plan</div>
+                <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-1)' }}>{authEmail || 'My Account'}</div>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-2)', marginTop: '2px' }}>Free Plan</div>
               </div>
             </div>
 
-            <div className="card" style={{ marginBottom: '24px', padding: 0, overflow: 'hidden' }}>
+            <div className="card" style={{ marginBottom: '14px', padding: 0, overflow: 'hidden' }}>
               <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)', fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '1px' }}>Preferences</div>
               
               <div className="settings-row">
