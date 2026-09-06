@@ -4,6 +4,13 @@ import {
   ResponsiveContainer, PieChart, Pie, Cell,
   BarChart, Bar,
 } from 'recharts';
+import {
+  Wallet, Home, Activity, PieChart as PieChartIcon,
+  Plus, LogOut, Search, CircleCheck,
+  Coffee, Bus, Utensils, ShoppingCart, Paintbrush, Car, HandCoins, GraduationCap, Pill,
+  Pizza, Ticket, Zap, ShoppingBag, HeartPulse, BookOpen, Package,
+  TrendingUp, Inbox, X, Save, Edit3, Trash2, CheckCircle2
+} from 'lucide-react';
 import './App.css';
 
 // ─────────────────────────────────────────────
@@ -44,32 +51,32 @@ const BAR_DATA = [
 const DUMMY_INCOME = 62400;
 
 const DEMO_TRANSACTIONS: {
-  id: string; icon: string; color: string; name: string;
+  id: string; icon: React.ReactNode; color: string; name: string;
   sub: string; amount: number; date: string; group: string; type: 'expense'|'income';
 }[] = [
-  { id:'t1', icon:'☕', color:'#7C4B2A', name:'Blue Bottle Coffee',  sub:'Dining · Amex —3009',        amount:-675,    date:'7 Sep 2026', group:'TODAY',     type:'expense' },
-  { id:'t2', icon:'🚌', color:'#1a3a5c', name:'Muni Transit',        sub:'Transport · Everyday —4021', amount:-3500,   date:'7 Sep 2026', group:'TODAY',     type:'expense' },
-  { id:'t3', icon:'🥗', color:'#1a4a2e', name:'Sweetgreen',          sub:'Dining · Amex —3009',        amount:-1840,   date:'7 Sep 2026', group:'TODAY',     type:'expense' },
-  { id:'t4', icon:'🛒', color:'#1a3a1a', name:'Whole Foods Market',  sub:'Groceries · Amex —3009',     amount:-8422,   date:'6 Sep 2026', group:'YESTERDAY', type:'expense' },
-  { id:'t5', icon:'🎨', color:'#1e1a40', name:'Figma',               sub:'Subscriptions · Amex —3009', amount:-1500,   date:'6 Sep 2026', group:'YESTERDAY', type:'expense' },
-  { id:'t6', icon:'🚗', color:'#ff0084', name:'Lyft',                sub:'Transport · Amex —3009',     amount:-2160,   date:'6 Sep 2026', group:'YESTERDAY', type:'expense' },
-  { id:'t7', icon:'💰', color:'#1a3a2a', name:'Salary — Forbit',     sub:'Income · HDFC —8821',        amount:312000,  date:'5 Sep 2026', group:'5 SEP',     type:'income'  },
-  { id:'t8', icon:'📚', color:'#1a2a4a', name:'Udemy Course',        sub:'Education · Amex —3009',     amount:-1299,   date:'4 Sep 2026', group:'4 SEP',     type:'expense' },
-  { id:'t9', icon:'🏥', color:'#1a1a4a', name:'Apollo Pharmacy',     sub:'Health · Amex —3009',        amount:-560,    date:'3 Sep 2026', group:'3 SEP',     type:'expense' },
+  { id:'t1', icon:<Coffee size={20}/>,       color:'#7C4B2A', name:'Blue Bottle Coffee',  sub:'Dining · Amex —3009',        amount:-675,    date:'7 Sep 2026', group:'TODAY',     type:'expense' },
+  { id:'t2', icon:<Bus size={20}/>,          color:'#1a3a5c', name:'Muni Transit',        sub:'Transport · Everyday —4021', amount:-3500,   date:'7 Sep 2026', group:'TODAY',     type:'expense' },
+  { id:'t3', icon:<Utensils size={20}/>,     color:'#1a4a2e', name:'Sweetgreen',          sub:'Dining · Amex —3009',        amount:-1840,   date:'7 Sep 2026', group:'TODAY',     type:'expense' },
+  { id:'t4', icon:<ShoppingCart size={20}/>, color:'#1a3a1a', name:'Whole Foods Market',  sub:'Groceries · Amex —3009',     amount:-8422,   date:'6 Sep 2026', group:'YESTERDAY', type:'expense' },
+  { id:'t5', icon:<Paintbrush size={20}/>,   color:'#1e1a40', name:'Figma',               sub:'Subscriptions · Amex —3009', amount:-1500,   date:'6 Sep 2026', group:'YESTERDAY', type:'expense' },
+  { id:'t6', icon:<Car size={20}/>,          color:'#ff0084', name:'Lyft',                sub:'Transport · Amex —3009',     amount:-2160,   date:'6 Sep 2026', group:'YESTERDAY', type:'expense' },
+  { id:'t7', icon:<HandCoins size={20}/>,    color:'#1a3a2a', name:'Salary — Forbit',     sub:'Income · HDFC —8821',        amount:312000,  date:'5 Sep 2026', group:'5 SEP',     type:'income'  },
+  { id:'t8', icon:<GraduationCap size={20}/>,color:'#1a2a4a', name:'Udemy Course',        sub:'Education · Amex —3009',     amount:-1299,   date:'4 Sep 2026', group:'4 SEP',     type:'expense' },
+  { id:'t9', icon:<Pill size={20}/>,         color:'#1a1a4a', name:'Apollo Pharmacy',     sub:'Health · Amex —3009',        amount:-560,    date:'3 Sep 2026', group:'3 SEP',     type:'expense' },
 ];
 
 // ─────────────────────────────────────────────
 //  CATEGORY CONFIG
 // ─────────────────────────────────────────────
 const CATEGORIES = [
-  { name:'Food',           icon:'🍔', color:'#f97316' },
-  { name:'Transportation', icon:'🚗', color:'#3b82f6' },
-  { name:'Entertainment',  icon:'🎮', color:'#a855f7' },
-  { name:'Bills',          icon:'⚡', color:'#f59e0b' },
-  { name:'Shopping',       icon:'🛍️', color:'#ec4899' },
-  { name:'Health',         icon:'🏥', color:'#10b981' },
-  { name:'Education',      icon:'📚', color:'#14b8a6' },
-  { name:'Other',          icon:'📦', color:'#64748b' },
+  { name:'Food',           icon:<Pizza size={18}/>,         color:'#f97316' },
+  { name:'Transportation', icon:<Car size={18}/>,           color:'#3b82f6' },
+  { name:'Entertainment',  icon:<Ticket size={18}/>,        color:'#a855f7' },
+  { name:'Bills',          icon:<Zap size={18}/>,           color:'#f59e0b' },
+  { name:'Shopping',       icon:<ShoppingBag size={18}/>,   color:'#ec4899' },
+  { name:'Health',         icon:<HeartPulse size={18}/>,    color:'#10b981' },
+  { name:'Education',      icon:<BookOpen size={18}/>,      color:'#14b8a6' },
+  { name:'Other',          icon:<Package size={18}/>,       color:'#64748b' },
 ];
 const getCatConfig = (name: string) =>
   CATEGORIES.find(c => c.name === name) ?? CATEGORIES[7];
@@ -229,7 +236,7 @@ export default function App() {
     <div className="auth-screen">
       <div className="auth-card">
         <div className="auth-logo">
-          <div className="auth-logo-mark">💸</div>
+          <div className="auth-logo-mark"><Wallet size={20} color="#fff" strokeWidth={2.5}/></div>
           <span className="auth-logo-name">FinTrack</span>
         </div>
         <h1 className="auth-h1">{isLogin ? 'Welcome back' : 'Get started'}</h1>
@@ -268,15 +275,15 @@ export default function App() {
       {/* ── Sidebar ── */}
       <nav className="sidebar">
         <div className="sidebar-logo">
-          <div className="sidebar-logo-mark">💸</div>
+          <div className="sidebar-logo-mark"><Wallet size={18} color="#fff" strokeWidth={2.5}/></div>
           <span className="sidebar-logo-name">FinTrack</span>
         </div>
 
         <span className="nav-section-label">Main</span>
         {([
-          { id:'home',     icon:'🏠', label:'Home'     },
-          { id:'activity', icon:'⚡', label:'Activity'  },
-          { id:'insights', icon:'📊', label:'Insights'  },
+          { id:'home',     icon:<Home size={20}/>, label:'Home'     },
+          { id:'activity', icon:<Activity size={20}/>, label:'Activity'  },
+          { id:'insights', icon:<PieChartIcon size={20}/>, label:'Insights'  },
         ] as const).map(item => (
           <button key={item.id}
             className={`nav-item${activePage===item.id?' active':''}`}
@@ -288,7 +295,7 @@ export default function App() {
 
         <span className="nav-section-label hide-on-mobile">Account</span>
         <button className="nav-item hide-on-mobile" onClick={()=>setShowAdd(true)}>
-          <span className="nav-icon">➕</span>Add Expense
+          <span className="nav-icon"><Plus size={20}/></span>Add Expense
         </button>
 
         <div className="sidebar-bottom">
@@ -297,7 +304,7 @@ export default function App() {
               {authEmail ? authEmail[0].toUpperCase() : 'U'}
             </div>
             <span className="user-email">{authEmail || 'My Account'}</span>
-            <span className="signout-icon">↩</span>
+            <span className="signout-icon"><LogOut size={16}/></span>
           </div>
         </div>
       </nav>
@@ -311,7 +318,9 @@ export default function App() {
             <div className="page-header">
               <div>
                 <div className="page-title">Net Cash Flow · Sep</div>
-                <div className="page-subtitle">🟢 Updated just now · connected to backend</div>
+                <div className="page-subtitle" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <CircleCheck size={14} color="#00d084"/> Updated just now · connected to backend
+                </div>
               </div>
               <div className="page-date">
                 {new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}
@@ -382,8 +391,8 @@ export default function App() {
                     <div key={d.category} className="cat-legend-row">
                       <div className="cat-legend-left">
                         <div className="cat-dot" style={{background:d.color}}/>
-                        <span className="cat-legend-name">
-                          {getCatConfig(d.category).icon} {d.category}
+                        <span className="cat-legend-name" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span style={{ opacity: 0.8 }}>{getCatConfig(d.category).icon}</span> {d.category}
                         </span>
                       </div>
                       <span className="cat-legend-pct">
@@ -424,7 +433,7 @@ export default function App() {
             </div>
 
             <div className="search-box">
-              <span className="search-icon-pos">🔍</span>
+              <span className="search-icon-pos"><Search size={16}/></span>
               <input className="search-input" placeholder="Search merchants, notes, amounts..."
                 value={searchQ} onChange={e=>setSearchQ(e.target.value)}/>
             </div>
@@ -463,10 +472,10 @@ export default function App() {
                       </div>
                       {t.type==='expense' && expenses.find(e=>e.id===t.id) && (
                         <div style={{display:'flex',gap:'6px',marginLeft:'12px'}}>
-                          <button style={{background:'transparent',border:'1px solid rgba(245,166,35,0.3)',color:'#f5a623',padding:'4px 10px',borderRadius:'6px',cursor:'pointer',fontSize:'0.75rem',fontWeight:600}}
-                            onClick={()=>handleEditClick(expenses.find(e=>e.id===t.id)!)}>Edit</button>
-                          <button style={{background:'transparent',border:'1px solid rgba(255,77,77,0.3)',color:'#ff4d4d',padding:'4px 10px',borderRadius:'6px',cursor:'pointer',fontSize:'0.75rem',fontWeight:600}}
-                            onClick={()=>handleDelete(t.id)}>Del</button>
+                          <button style={{background:'transparent',border:'1px solid rgba(245,166,35,0.3)',color:'#f5a623',padding:'4px 10px',borderRadius:'6px',cursor:'pointer',fontSize:'0.75rem',fontWeight:600, display: 'flex', alignItems: 'center', gap: '4px'}}
+                            onClick={()=>handleEditClick(expenses.find(e=>e.id===t.id)!)}><Edit3 size={12}/> Edit</button>
+                          <button style={{background:'transparent',border:'1px solid rgba(255,77,77,0.3)',color:'#ff4d4d',padding:'4px 10px',borderRadius:'6px',cursor:'pointer',fontSize:'0.75rem',fontWeight:600, display: 'flex', alignItems: 'center', gap: '4px'}}
+                            onClick={()=>handleDelete(t.id)}><Trash2 size={12}/> Del</button>
                         </div>
                       )}
                     </div>
@@ -537,7 +546,7 @@ export default function App() {
                 <div className="health-ring-wrap">
                   <div className="health-score-num" style={{color:'#00d084'}}>82</div>
                   <div>
-                    <div className="health-score-label">Strong 💪</div>
+                    <div className="health-score-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>Strong <TrendingUp size={16} color="#00d084"/></div>
                     <div className="health-score-sub">▲ 4 pts this month</div>
                   </div>
                 </div>
@@ -548,7 +557,7 @@ export default function App() {
       </main>
 
       {/* ── FAB ── */}
-      <button className="fab" onClick={()=>setShowAdd(true)} title="Add expense">＋</button>
+      <button className="fab" onClick={()=>setShowAdd(true)} title="Add expense"><Plus size={28} strokeWidth={2.5}/></button>
 
       {/* ── Add / Edit Panel ── */}
       {showAdd && (
@@ -556,7 +565,7 @@ export default function App() {
           <div className="add-panel">
             <div className="add-panel-header">
               <span className="add-panel-title">{editingId ? 'Edit Expense' : 'New Transaction'}</span>
-              <button className="close-btn" onClick={resetForm}>✕</button>
+              <button className="close-btn" onClick={resetForm}><X size={18}/></button>
             </div>
 
             <div className="type-toggle">
@@ -604,8 +613,8 @@ export default function App() {
                   value={fDate} onChange={e=>setFDate(e.target.value)} required/>
               </div>
 
-              <button type="submit" className="save-btn">
-                {editingId ? '💾  Save Changes' : '✨  Add Transaction'}
+              <button type="submit" className="save-btn" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                {editingId ? <><Save size={18}/> Save Changes</> : <><CheckCircle2 size={18}/> Add Transaction</>}
               </button>
             </form>
           </div>
