@@ -5,85 +5,85 @@ import {
   BarChart, Bar,
 } from 'recharts';
 import {
-  Wallet, Home, Activity, PieChart as PieChartIcon,
-  Plus, LogOut, Search, CircleCheck,
-  Coffee, Bus, Utensils, ShoppingCart, Paintbrush, Car, HandCoins, GraduationCap, Pill,
-  Pizza, Ticket, Zap, ShoppingBag, HeartPulse, BookOpen, Package,
-  TrendingUp, Inbox, X, Save, Edit3, Trash2, CheckCircle2, User, Settings, Shield, Bell
+  Home, BarChart2, Layers, User, Plus, X,
+  Sun, Moon, Bell, ChevronDown, TrendingUp, TrendingDown,
+  Coffee, Bus, Utensils, ShoppingCart, Car, Paintbrush,
+  HandCoins, GraduationCap, Pill, Pizza, Ticket, Zap,
+  ShoppingBag, HeartPulse, BookOpen, Package,
+  Edit3, Trash2, Save, CheckCircle2, Settings, Shield, LogOut,
+  Wallet, ArrowUpRight, ArrowDownRight, AlertCircle, Target,
 } from 'lucide-react';
 import './App.css';
 
-// ─────────────────────────────────────────────
-//  TYPES
-// ─────────────────────────────────────────────
+// ─── Types ───────────────────────────────────────────────────
 interface Expense {
-  id: string;
-  amount: string;
-  category: string;
-  description: string;
-  expense_date: string;
+  id: string; amount: string; category: string;
+  description: string; expense_date: string;
 }
 interface SummaryData {
-  total: number;
-  breakdown: { category: string; total: number }[];
+  total: number; breakdown: { category: string; total: number }[];
 }
 
-// ─────────────────────────────────────────────
-//  DUMMY DATA  (used for charts & demo feel)
-// ─────────────────────────────────────────────
+// ─── Dummy Data ───────────────────────────────────────────────
 const AREA_DATA = [
-  { day: '1 Sep', amount: 420 },  { day: '3 Sep', amount: 760 },
-  { day: '5 Sep', amount: 620 },  { day: '7 Sep', amount: 1100 },
-  { day: '9 Sep', amount: 970 },  { day: '11 Sep', amount: 1340 },
-  { day: '13 Sep', amount: 1210 },{ day: '15 Sep', amount: 1580 },
-  { day: '17 Sep', amount: 1450 },{ day: '19 Sep', amount: 1820 },
-  { day: '21 Sep', amount: 2100 },{ day: '23 Sep', amount: 1940 },
-  { day: '25 Sep', amount: 2260 },{ day: '27 Sep', amount: 2500 },
-  { day: '29 Sep', amount: 2362 },
+  { day: '1', amt: 420 },  { day: '3', amt: 760 },  { day: '5', amt: 580 },
+  { day: '7', amt: 1100 }, { day: '9', amt: 870 },  { day: '11', amt: 1340 },
+  { day: '13', amt: 1100 },{ day: '15', amt: 1520 }, { day: '17', amt: 1310 },
+  { day: '19', amt: 1780 },{ day: '21', amt: 2040 }, { day: '23', amt: 1880 },
+  { day: '25', amt: 2180 },{ day: '27', amt: 2420 }, { day: '29', amt: 2362 },
 ];
-
 const BAR_DATA = [
-  { month: 'Apr', amount: 18400 }, { month: 'May', amount: 22100 },
-  { month: 'Jun', amount: 19800 }, { month: 'Jul', amount: 24300 },
-  { month: 'Aug', amount: 21700 }, { month: 'Sep', amount: 23620 },
+  { m: 'Apr', v: 18400 }, { m: 'May', v: 22100 },
+  { m: 'Jun', v: 19800 }, { m: 'Jul', v: 24300 },
+  { m: 'Aug', v: 21700 }, { m: 'Sep', v: 23620 },
+];
+const DUMMY_INCOME   = 62400;
+const DUMMY_BALANCE  = 38778.20;
+
+const DEMO_TXS = [
+  { id:'t1', icon:<Coffee size={17}/>,       bg:'#7C4B2A22', name:'Blue Bottle Coffee', sub:'Food & Drink', amount:-675,   date:'7 Sep 2026', group:'Today', type:'expense' as const },
+  { id:'t2', icon:<Bus size={17}/>,          bg:'#1a3a5c33', name:'Metro Pass',         sub:'Transport',   amount:-3500,  date:'7 Sep 2026', group:'Today', type:'expense' as const },
+  { id:'t3', icon:<ShoppingCart size={17}/>, bg:'#1a3a1a33', name:'Whole Foods',        sub:'Groceries',   amount:-8422,  date:'6 Sep 2026', group:'Yesterday', type:'expense' as const },
+  { id:'t4', icon:<Paintbrush size={17}/>,   bg:'#1e1a4033', name:'Figma Pro',          sub:'Subscriptions',amount:-1500, date:'6 Sep 2026', group:'Yesterday', type:'expense' as const },
+  { id:'t5', icon:<HandCoins size={17}/>,    bg:'#1a3a2a33', name:'Salary — Sep',       sub:'Income',      amount:62400,  date:'5 Sep 2026', group:'5 Sep', type:'income' as const },
+  { id:'t6', icon:<GraduationCap size={17}/>,bg:'#1a2a4a33', name:'Udemy Course',       sub:'Education',   amount:-1299,  date:'4 Sep 2026', group:'4 Sep', type:'expense' as const },
+  { id:'t7', icon:<Pill size={17}/>,         bg:'#1a1a4a33', name:'Apollo Pharmacy',    sub:'Health',      amount:-560,   date:'3 Sep 2026', group:'3 Sep', type:'expense' as const },
 ];
 
-const DUMMY_INCOME = 62400;
-
-const DEMO_TRANSACTIONS: {
-  id: string; icon: React.ReactNode; color: string; name: string;
-  sub: string; amount: number; date: string; group: string; type: 'expense'|'income';
-}[] = [
-  { id:'t1', icon:<Coffee size={20}/>,       color:'#7C4B2A', name:'Blue Bottle Coffee',  sub:'Dining · Amex —3009',        amount:-675,    date:'7 Sep 2026', group:'TODAY',     type:'expense' },
-  { id:'t2', icon:<Bus size={20}/>,          color:'#1a3a5c', name:'Muni Transit',        sub:'Transport · Everyday —4021', amount:-3500,   date:'7 Sep 2026', group:'TODAY',     type:'expense' },
-  { id:'t3', icon:<Utensils size={20}/>,     color:'#1a4a2e', name:'Sweetgreen',          sub:'Dining · Amex —3009',        amount:-1840,   date:'7 Sep 2026', group:'TODAY',     type:'expense' },
-  { id:'t4', icon:<ShoppingCart size={20}/>, color:'#1a3a1a', name:'Whole Foods Market',  sub:'Groceries · Amex —3009',     amount:-8422,   date:'6 Sep 2026', group:'YESTERDAY', type:'expense' },
-  { id:'t5', icon:<Paintbrush size={20}/>,   color:'#1e1a40', name:'Figma',               sub:'Subscriptions · Amex —3009', amount:-1500,   date:'6 Sep 2026', group:'YESTERDAY', type:'expense' },
-  { id:'t6', icon:<Car size={20}/>,          color:'#ff0084', name:'Lyft',                sub:'Transport · Amex —3009',     amount:-2160,   date:'6 Sep 2026', group:'YESTERDAY', type:'expense' },
-  { id:'t7', icon:<HandCoins size={20}/>,    color:'#1a3a2a', name:'Salary — Forbit',     sub:'Income · HDFC —8821',        amount:312000,  date:'5 Sep 2026', group:'5 SEP',     type:'income'  },
-  { id:'t8', icon:<GraduationCap size={20}/>,color:'#1a2a4a', name:'Udemy Course',        sub:'Education · Amex —3009',     amount:-1299,   date:'4 Sep 2026', group:'4 SEP',     type:'expense' },
-  { id:'t9', icon:<Pill size={20}/>,         color:'#1a1a4a', name:'Apollo Pharmacy',     sub:'Health · Amex —3009',        amount:-560,    date:'3 Sep 2026', group:'3 SEP',     type:'expense' },
+const CAT_REPORT = [
+  { name:'Food',          pct:31, amt:7340.20, vs:'+8%',  isUp:true,  color:'#f97316', icon:<Pizza size={16}/>,       bg:'#f9731622' },
+  { name:'Bills',         pct:24, amt:5680.00, vs:'-3%',  isUp:false, color:'#f59e0b', icon:<Zap size={16}/>,         bg:'#f59e0b22' },
+  { name:'Shopping',      pct:18, amt:4260.50, vs:'+12%', isUp:true,  color:'#ec4899', icon:<ShoppingBag size={16}/>, bg:'#ec489922' },
+  { name:'Transport',     pct:13, amt:3080.00, vs:'-1%',  isUp:false, color:'#3b82f6', icon:<Car size={16}/>,         bg:'#3b82f622' },
+  { name:'Entertainment', pct:9,  amt:2130.00, vs:'+5%',  isUp:true,  color:'#8b5cf6', icon:<Ticket size={16}/>,      bg:'#8b5cf622' },
+  { name:'Health',        pct:5,  amt:1185.00, vs:'-2%',  isUp:false, color:'#10b981', icon:<HeartPulse size={16}/>,  bg:'#10b98122' },
 ];
 
-// ─────────────────────────────────────────────
-//  CATEGORY CONFIG
-// ─────────────────────────────────────────────
+const GOALS = [
+  { name:'House Down Payment', target:500000, saved:148750, color:'#7C3AED', icon:<Home size={16}/>, bg:'#7C3AED22', alert:true },
+  { name:'Emergency Fund',     target:100000, saved:65000,  color:'#10b981', icon:<Shield size={16}/>, bg:'#10b98122', alert:false },
+];
+const BUDGETS = [
+  { name:'Food & Dining',  budget:12000, spent:7340, color:'#f97316', icon:<Pizza size={16}/>, bg:'#f9731622' },
+  { name:'Shopping',       budget:8000,  spent:4260, color:'#ec4899', icon:<ShoppingBag size={16}/>, bg:'#ec489922' },
+  { name:'Transport',      budget:5000,  spent:3080, color:'#3b82f6', icon:<Car size={16}/>, bg:'#3b82f622' },
+  { name:'Entertainment',  budget:4000,  spent:2130, color:'#8b5cf6', icon:<Ticket size={16}/>, bg:'#8b5cf622' },
+];
+
+// ─── Category config ─────────────────────────────────────────
 const CATEGORIES = [
-  { name:'Food',           icon:<Pizza size={18}/>,         color:'#f97316' },
-  { name:'Transportation', icon:<Car size={18}/>,           color:'#3b82f6' },
-  { name:'Entertainment',  icon:<Ticket size={18}/>,        color:'#a855f7' },
-  { name:'Bills',          icon:<Zap size={18}/>,           color:'#f59e0b' },
-  { name:'Shopping',       icon:<ShoppingBag size={18}/>,   color:'#ec4899' },
-  { name:'Health',         icon:<HeartPulse size={18}/>,    color:'#10b981' },
-  { name:'Education',      icon:<BookOpen size={18}/>,      color:'#14b8a6' },
-  { name:'Other',          icon:<Package size={18}/>,       color:'#64748b' },
+  { name:'Food',           icon:<Pizza size={16}/>,        color:'#f97316' },
+  { name:'Transportation', icon:<Car size={16}/>,          color:'#3b82f6' },
+  { name:'Entertainment',  icon:<Ticket size={16}/>,       color:'#8b5cf6' },
+  { name:'Bills',          icon:<Zap size={16}/>,          color:'#f59e0b' },
+  { name:'Shopping',       icon:<ShoppingBag size={16}/>,  color:'#ec4899' },
+  { name:'Health',         icon:<HeartPulse size={16}/>,   color:'#10b981' },
+  { name:'Education',      icon:<BookOpen size={16}/>,     color:'#14b8a6' },
+  { name:'Other',          icon:<Package size={16}/>,      color:'#64748b' },
 ];
-const getCatConfig = (name: string) =>
-  CATEGORIES.find(c => c.name === name) ?? CATEGORIES[7];
+const getCat = (n: string) => CATEGORIES.find(c => c.name === n) ?? CATEGORIES[7];
 
-// ─────────────────────────────────────────────
-//  CUSTOM TOOLTIP
-// ─────────────────────────────────────────────
+// ─── Tooltip ──────────────────────────────────────────────────
 const ChartTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   return (
@@ -94,514 +94,615 @@ const ChartTooltip = ({ active, payload, label }: any) => {
   );
 };
 
-// ─────────────────────────────────────────────
-//  MAIN APP
-// ─────────────────────────────────────────────
+// ─── Main ─────────────────────────────────────────────────────
 export default function App() {
   // Auth
-  const [token,        setToken]        = useState<string|null>(localStorage.getItem('token'));
-  const [isLogin,      setIsLogin]      = useState(true);
-  const [authEmail,    setAuthEmail]    = useState('');
-  const [authPass,     setAuthPass]     = useState('');
-  const [authError,    setAuthError]    = useState('');
+  const [token,     setToken]    = useState<string|null>(localStorage.getItem('token'));
+  const [isLogin,   setIsLogin]  = useState(true);
+  const [authEmail, setEmail]    = useState('');
+  const [authPass,  setPass]     = useState('');
+  const [authError, setError]    = useState('');
 
   // Data
-  const [expenses,     setExpenses]     = useState<Expense[]>([]);
-  const [summary,      setSummary]      = useState<SummaryData>({ total: 0, breakdown: [] });
+  const [expenses,  setExpenses] = useState<Expense[]>([]);
+  const [summary,   setSummary]  = useState<SummaryData>({ total: 0, breakdown: [] });
 
   // UI
-  const [activePage,   setActivePage]   = useState<'home'|'activity'|'insights'|'profile'>('home');
-  const [period,       setPeriod]       = useState<'Week'|'Month'|'Year'>('Month');
-  const [showAdd,      setShowAdd]      = useState(false);
-  const [searchQ,      setSearchQ]      = useState('');
-  const [txFilter,     setTxFilter]     = useState<'All'|'Expenses'|'Income'>('All');
-  const [editingId,    setEditingId]    = useState<string|null>(null);
+  const [page,       setPage]    = useState<'home'|'report'|'plan'|'settings'>('home');
+  const [theme,      setTheme]   = useState<'dark'|'light'>(() => (localStorage.getItem('theme') as any) || 'dark');
+  const [showAdd,    setShowAdd] = useState(false);
+  const [reportTab,  setRepTab]  = useState<'expenses'|'income'>('expenses');
+  const [editingId,  setEditId]  = useState<string|null>(null);
 
   // Form
-  const [fAmount,      setFAmount]      = useState('');
-  const [fCategory,    setFCategory]    = useState('Food');
-  const [fDesc,        setFDesc]        = useState('');
-  const [fDate,        setFDate]        = useState('');
-  const [fType,        setFType]        = useState<'Expense'|'Income'>('Expense');
+  const [fAmt,  setFAmt]  = useState('');
+  const [fCat,  setFCat]  = useState('Food');
+  const [fDesc, setFDesc] = useState('');
+  const [fDate, setFDate] = useState('');
+  const [fType, setFType] = useState<'Expense'|'Income'>('Expense');
 
-  // ── Effects ──
-  useEffect(() => { if (token) { fetchExpenses(); fetchSummary(); } }, [token]);
+  // Apply theme
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
-  // ── Helpers ──
-  const authH = () => ({
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`,
-  });
+  useEffect(() => { if (token) { fetchExp(); fetchSum(); } }, [token]);
 
-  const fetchSummary = () => {
+  const authH = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${token}` });
+
+  const fetchSum = () => {
     if (!token) return;
     fetch('http://localhost:3000/api/expenses/summary', { headers: authH() })
-      .then(r => { if (r.status === 401) handleLogout(); return r.json(); })
+      .then(r => { if (r.status === 401) logout(); return r.json(); })
       .then(d => setSummary(d)).catch(console.error);
   };
-
-  const fetchExpenses = () => {
+  const fetchExp = () => {
     if (!token) return;
     fetch('http://localhost:3000/api/expenses', { headers: authH() })
-      .then(r => r.json()).then(d => setExpenses(d)).catch(console.error);
+      .then(r => r.json()).then(setExpenses).catch(console.error);
   };
 
-  // ── Auth ──
   const handleAuth = async (e: React.FormEvent) => {
-    e.preventDefault(); setAuthError('');
+    e.preventDefault(); setError('');
     try {
-      const res  = await fetch(`http://localhost:3000/api/auth/${isLogin?'login':'register'}`, {
-        method:'POST', headers:{'Content-Type':'application/json'},
+      const res  = await fetch(`http://localhost:3000/api/auth/${isLogin ? 'login' : 'register'}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: authEmail, password: authPass }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       localStorage.setItem('token', data.token);
-      setToken(data.token); setAuthEmail(''); setAuthPass('');
-    } catch (err: any) { setAuthError(err.message); }
+      setToken(data.token); setEmail(''); setPass('');
+    } catch (err: any) { setError(err.message); }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    setToken(null); setExpenses([]); setSummary({ total:0, breakdown:[] });
-  };
+  const logout = () => { localStorage.removeItem('token'); setToken(null); setExpenses([]); setSummary({ total: 0, breakdown: [] }); };
 
-  // ── CRUD ──
-  const resetForm = () => {
-    setFAmount(''); setFCategory('Food'); setFDesc('');
-    setFDate(''); setEditingId(null); setShowAdd(false);
-  };
+  const resetForm = () => { setFAmt(''); setFCat('Food'); setFDesc(''); setFDate(''); setEditId(null); setShowAdd(false); };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    const body = JSON.stringify({
-      amount: parseFloat(fAmount), category: fCategory,
-      description: fDesc, expense_date: fDate,
-    });
-    const url = editingId
-      ? `http://localhost:3000/api/expenses/${editingId}`
-      : 'http://localhost:3000/api/expenses';
+    const body = JSON.stringify({ amount: parseFloat(fAmt), category: fCat, description: fDesc, expense_date: fDate });
+    const url  = editingId ? `http://localhost:3000/api/expenses/${editingId}` : 'http://localhost:3000/api/expenses';
     try {
-      const res = await fetch(url, { method: editingId?'PUT':'POST', headers: authH(), body });
-      if (res.ok) { resetForm(); fetchExpenses(); fetchSummary(); }
+      const res = await fetch(url, { method: editingId ? 'PUT' : 'POST', headers: authH(), body });
+      if (res.ok) { resetForm(); fetchExp(); fetchSum(); }
     } catch (err) { console.error(err); }
-  };
-
-  const handleEditClick = (exp: Expense) => {
-    setEditingId(exp.id); setFAmount(exp.amount.toString());
-    setFCategory(exp.category); setFDesc(exp.description);
-    setFDate(exp.expense_date.split('T')[0]); setShowAdd(true);
   };
 
   const handleDelete = async (id: string) => {
     try {
-      const res = await fetch(`http://localhost:3000/api/expenses/${id}`, { method:'DELETE', headers: authH() });
-      if (res.ok) { fetchExpenses(); fetchSummary(); }
+      const res = await fetch(`http://localhost:3000/api/expenses/${id}`, { method: 'DELETE', headers: authH() });
+      if (res.ok) { fetchExp(); fetchSum(); }
     } catch (err) { console.error(err); }
   };
 
-  // ── Derived ──
-  const totalSpent    = summary.total || 0;
-  const change        = '+9% vs last month';
-  const maxBreakdown  = Math.max(...summary.breakdown.map(b => b.total), 1);
+  // Derived
+  const totalSpent = summary.total || 0;
+  const balance    = DUMMY_BALANCE;
+  const donutData  = summary.breakdown.length > 0
+    ? summary.breakdown.map(b => ({ name: b.category, value: b.total, color: getCat(b.category).color }))
+    : CAT_REPORT.map(c => ({ name: c.name, value: c.pct, color: c.color }));
 
-  // Merge real breakdown with category colors for donut
-  const donutData = summary.breakdown.length > 0
-    ? summary.breakdown.map(b => ({ ...b, color: getCatConfig(b.category).color }))
-    : CATEGORIES.slice(0,5).map((c,i)=>({ category:c.name, total:[48,16,13,11,12][i], color:c.color }));
-
-  const donutTotal = donutData.reduce((s,d)=>s+d.total, 0);
-
-  // Filter transactions (real expenses)
-  const realTxs = expenses.map(e => ({
-    id: e.id, icon: getCatConfig(e.category).icon,
-    color: getCatConfig(e.category).color + '33',
-    name: e.description, sub: e.category,
-    amount: -parseFloat(e.amount),
-    date: new Date(e.expense_date).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }),
-    group: 'MY EXPENSES', type: 'expense' as const,
-  }));
-
-  const allTxs = [...DEMO_TRANSACTIONS, ...realTxs];
-  const filteredTxs = allTxs
-    .filter(t => txFilter === 'All' || (txFilter === 'Expenses' ? t.type==='expense' : t.type==='income'))
-    .filter(t => !searchQ || t.name.toLowerCase().includes(searchQ.toLowerCase()));
-
-  const txGroups = filteredTxs.reduce<Record<string,typeof allTxs>>((acc, t) => {
+  // Group demo transactions
+  const groups = DEMO_TXS.reduce<Record<string, typeof DEMO_TXS>>((acc, t) => {
     (acc[t.group] = acc[t.group] || []).push(t); return acc;
   }, {});
 
-  // ── AUTH SCREEN ──────────────────────────────────────────────────────────────
+  // ── Theme toggle button ───────────────────────────────────────
+  const ThemeToggle = () => (
+    <button className="theme-toggle" onClick={() => setTheme(t => t === 'dark' ? 'light' : 'dark')}>
+      {theme === 'dark' ? <Sun size={14}/> : <Moon size={14}/>}
+      {theme === 'dark' ? 'Light' : 'Dark'}
+    </button>
+  );
+
+  // ── AUTH ─────────────────────────────────────────────────────
   if (!token) return (
     <div className="auth-screen">
       <div className="auth-card">
         <div className="auth-logo">
-          <div className="auth-logo-mark"><Wallet size={20} color="#fff" strokeWidth={2.5}/></div>
+          <div className="auth-logo-mark"><Wallet size={18} color="#fff"/></div>
           <span className="auth-logo-name">FinTrack</span>
         </div>
+        <div style={{ display:'flex', justifyContent:'flex-end', marginBottom:'24px' }}>
+          <ThemeToggle/>
+        </div>
         <h1 className="auth-h1">{isLogin ? 'Welcome back' : 'Get started'}</h1>
-        <p className="auth-sub">
-          {isLogin ? 'Sign in to your personal finance dashboard.' : 'Create your private expense tracker account.'}
-        </p>
+        <p className="auth-sub">{isLogin ? 'Sign in to your finance dashboard.' : 'Create your private expense tracker.'}</p>
         {authError && <div className="auth-error">{authError}</div>}
         <form onSubmit={handleAuth}>
           <div className="auth-field">
             <label className="auth-label">Email</label>
-            <input className="auth-input" type="email" placeholder="you@example.com"
-              value={authEmail} onChange={e=>setAuthEmail(e.target.value)} required />
+            <input className="auth-input" type="email" placeholder="you@example.com" value={authEmail} onChange={e=>setEmail(e.target.value)} required/>
           </div>
           <div className="auth-field">
             <label className="auth-label">Password</label>
-            <input className="auth-input" type="password" placeholder="••••••••"
-              value={authPass} onChange={e=>setAuthPass(e.target.value)} required />
+            <input className="auth-input" type="password" placeholder="••••••••" value={authPass} onChange={e=>setPass(e.target.value)} required/>
           </div>
-          <button className="auth-submit" type="submit">
-            {isLogin ? 'Sign In →' : 'Create Account →'}
-          </button>
+          <button className="auth-submit" type="submit">{isLogin ? 'Sign In →' : 'Create Account →'}</button>
         </form>
         <p className="auth-switch">
           {isLogin ? "Don't have an account? " : "Already have an account? "}
-          <span onClick={()=>{setIsLogin(!isLogin);setAuthError('');}}>
-            {isLogin ? 'Sign up' : 'Sign in'}
-          </span>
+          <span onClick={()=>{ setIsLogin(!isLogin); setError(''); }}>{isLogin ? 'Sign up' : 'Sign in'}</span>
         </p>
       </div>
     </div>
   );
 
-  // ── DASHBOARD ────────────────────────────────────────────────────────────────
+  // ─── NAV CONFIG ───────────────────────────────────────────────
+  const NAV = [
+    { id:'home',     icon:<Home size={20}/>,      label:'Home'    },
+    { id:'report',   icon:<BarChart2 size={20}/>,  label:'Report'  },
+    { id:'plan',     icon:<Layers size={20}/>,     label:'Plan'    },
+    { id:'settings', icon:<User size={20}/>,       label:'Profile' },
+  ] as const;
+
+  // ─── DASHBOARD ────────────────────────────────────────────────
   return (
     <div className="app-shell">
-      {/* ── Sidebar ── */}
+
+      {/* ══ Sidebar (desktop) ══ */}
       <nav className="sidebar">
         <div className="sidebar-logo">
-          <div className="sidebar-logo-mark"><Wallet size={18} color="#fff" strokeWidth={2.5}/></div>
+          <div className="sidebar-logo-mark"><Wallet size={16} color="#fff"/></div>
           <span className="sidebar-logo-name">FinTrack</span>
         </div>
 
-        <span className="nav-section-label">Main</span>
-        {([
-          { id:'home',     icon:<Home size={20}/>, label:'Home'     },
-          { id:'activity', icon:<Activity size={20}/>, label:'Activity'  },
-          { id:'insights', icon:<PieChartIcon size={20}/>, label:'Insights'  },
-          { id:'profile',  icon:<User size={20}/>, label:'Profile'  },
-        ] as const).map(item => (
-          <button key={item.id}
-            className={`nav-item${activePage===item.id?' active':''}`}
-            onClick={()=>setActivePage(item.id)}
-          >
+        <span className="nav-section-label">Menu</span>
+        {NAV.map(item => (
+          <button key={item.id} className={`nav-item${page===item.id?' active':''}`} onClick={()=>setPage(item.id)}>
             <span className="nav-icon">{item.icon}</span>{item.label}
           </button>
         ))}
 
-        <span className="nav-section-label hide-on-mobile">Account</span>
-        <button className="nav-item hide-on-mobile" onClick={()=>setShowAdd(true)}>
-          <span className="nav-icon"><Plus size={20}/></span>Add Expense
+        <span className="nav-section-label">Quick</span>
+        <button className="nav-item" onClick={()=>setShowAdd(true)}>
+          <span className="nav-icon"><Plus size={18}/></span>Add Expense
         </button>
+
+        <div className="sidebar-bottom">
+          <div style={{ marginBottom:'10px' }}><ThemeToggle/></div>
+          <div className="sidebar-user" onClick={logout} title="Sign out">
+            <div className="user-avatar">{authEmail?.[0]?.toUpperCase()||'U'}</div>
+            <span className="user-email">{authEmail || 'My Account'}</span>
+            <span className="signout-icon"><LogOut size={14}/></span>
+          </div>
+        </div>
       </nav>
 
-      {/* ── Page Content ── */}
+      {/* ══ Page content ══ */}
       <main className="page-content">
 
-        {/* ════════ HOME PAGE ════════ */}
-        {activePage === 'home' && (
+        {/* Mobile top-bar */}
+        <div className="topbar">
+          <span className="topbar-title">
+            {page==='home' ? 'Overview' : page==='report' ? 'Reports' : page==='plan' ? 'My Plan' : 'Profile'}
+          </span>
+          <div className="topbar-actions">
+            <ThemeToggle/>
+            <button style={{ background:'var(--bg-surface)', border:'1px solid var(--border)', borderRadius:'50%', width:34, height:34, display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', color:'var(--text-2)' }}>
+              <Bell size={16}/>
+            </button>
+          </div>
+        </div>
+
+        {/* ════ HOME ════ */}
+        {page === 'home' && (
           <>
-            <div className="page-header">
-              <div>
-                <div className="page-title">Net Cash Flow · Sep</div>
-                <div className="page-subtitle" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <CircleCheck size={14} color="#00d084"/> Updated just now · connected to backend
+            {/* Hero */}
+            <div className="hero-section">
+              <div className="hero-toprow">
+                <div className="hero-user-row">
+                  <div className="hero-avatar">{authEmail?.[0]?.toUpperCase()||'U'}</div>
+                  <button className="hero-month-pill">
+                    September 2026 <ChevronDown size={12}/>
+                  </button>
                 </div>
+                <button className="hero-bell"><Bell size={16}/></button>
               </div>
-              <div className="page-date">
-                {new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}
+              <p className="hero-balance-label">Current Balance</p>
+              <div className="hero-balance">
+                <span className="hero-cur">₹</span>
+                {balance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+              </div>
+              <p className="hero-change pos"><TrendingUp size={13}/> +₹2,840 since last month</p>
+            </div>
+
+            {/* Income / Expense cards */}
+            <div className="money-cards">
+              <div className="money-card">
+                <div className="money-card-top">
+                  <div className="money-card-icon green"><ArrowDownRight size={16}/></div>
+                  <span className="money-card-label">Income</span>
+                </div>
+                <div className="money-card-amount">₹{DUMMY_INCOME.toLocaleString('en-IN')}</div>
+              </div>
+              <div className="money-card">
+                <div className="money-card-top">
+                  <div className="money-card-icon red"><ArrowUpRight size={16}/></div>
+                  <span className="money-card-label">Expenses</span>
+                </div>
+                <div className="money-card-amount">
+                  ₹{totalSpent > 0 ? totalSpent.toLocaleString('en-IN', { maximumFractionDigits: 0 }) : '23,622'}
+                </div>
               </div>
             </div>
 
-            <div className="home-grid">
-              {/* Hero chart card */}
-              <div className="hero-card">
-                <div className="hero-label">Total Spent · September</div>
-                <div className="hero-amount">
-                  <span className="currency">₹</span>
-                  {totalSpent > 0
-                    ? totalSpent.toLocaleString('en-IN', {minimumFractionDigits:2})
-                    : '23,621.80'}
-                </div>
-                <span className="hero-badge">▲ {change}</span>
-
-                <div className="period-toggle">
-                  {(['Week','Month','Year'] as const).map(p=>(
-                    <button key={p} className={`period-btn${period===p?' active':''}`}
-                      onClick={()=>setPeriod(p)}>{p}</button>
-                  ))}
-                </div>
-
-                {/* Area Chart */}
-                <ResponsiveContainer width="100%" height={150}>
-                  <AreaChart data={AREA_DATA} margin={{top:0,right:0,left:-30,bottom:0}}>
-                    <defs>
-                      <linearGradient id="goldGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%"  stopColor="#f5a623" stopOpacity={0.25}/>
-                        <stop offset="95%" stopColor="#f5a623" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <XAxis dataKey="day" tick={{fill:'#55556a',fontSize:11}} axisLine={false} tickLine={false} />
-                    <YAxis tick={{fill:'#55556a',fontSize:11}} axisLine={false} tickLine={false} tickFormatter={v=>`₹${v}`} />
-                    <Tooltip content={<ChartTooltip/>} cursor={{stroke:'rgba(245,166,35,0.2)',strokeWidth:1}}/>
-                    <Area type="monotone" dataKey="amount" stroke="#f5a623" strokeWidth={2.5}
-                      fill="url(#goldGrad)" dot={false} activeDot={{r:5,fill:'#f5a623',strokeWidth:0}}/>
-                  </AreaChart>
-                </ResponsiveContainer>
+            {/* Spending trend */}
+            <div style={{ margin:'16px 24px 0', background:'var(--bg-card)', borderRadius:'var(--r-xl)', padding:'16px 16px 8px', boxShadow:'var(--shadow-card)' }}>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'12px' }}>
+                <span style={{ fontSize:'0.85rem', fontWeight:700, color:'var(--text-1)', letterSpacing:'-0.2px' }}>Spending trend</span>
+                <span style={{ fontSize:'0.72rem', fontWeight:600, color:'var(--text-3)' }}>Sep 2026</span>
               </div>
-
-              {/* Donut card */}
-              <div className="donut-card">
-                <div className="card-label">Spending Breakdown</div>
-                <div className="donut-wrap">
-                  <ResponsiveContainer width={130} height={130}>
-                    <PieChart>
-                      <Pie data={donutData} dataKey="total" innerRadius={42} outerRadius={60}
-                        paddingAngle={3} stroke="none">
-                        {donutData.map((d,i)=><Cell key={i} fill={d.color}/>)}
-                      </Pie>
-                    </PieChart>
-                  </ResponsiveContainer>
-                  <div className="donut-center">
-                    <div className="donut-center-label">SPENT</div>
-                    <div className="donut-center-val">
-                      ₹{totalSpent > 0
-                        ? Math.round(totalSpent/1000)+'k'
-                        : '23k'}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="cat-legend">
-                  {donutData.map(d=>(
-                    <div key={d.category} className="cat-legend-row">
-                      <div className="cat-legend-left">
-                        <div className="cat-dot" style={{background:d.color}}/>
-                        <span className="cat-legend-name" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span style={{ opacity: 0.8 }}>{getCatConfig(d.category).icon}</span> {d.category}
-                        </span>
-                      </div>
-                      <span className="cat-legend-pct">
-                        {Math.round((d.total/donutTotal)*100)}%
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* IN / OUT row */}
-              <div className="inout-grid">
-                <div className="inout-card">
-                  <div className="inout-label">In · September</div>
-                  <div className="inout-amount green">₹{(DUMMY_INCOME).toLocaleString('en-IN')}</div>
-                  <div className="inout-bar green"/>
-                </div>
-                <div className="inout-card">
-                  <div className="inout-label">Out · September</div>
-                  <div className="inout-amount red">
-                    ₹{totalSpent>0 ? totalSpent.toLocaleString('en-IN',{maximumFractionDigits:0}) : '23,622'}
-                  </div>
-                  <div className="inout-bar red"/>
-                </div>
-              </div>
-            </div>
-          </>
-        )}
-
-        {/* ════════ ACTIVITY PAGE ════════ */}
-        {activePage === 'activity' && (
-          <>
-            <div className="page-header">
-              <div>
-                <div className="page-title">Activity</div>
-                <div className="page-subtitle">{allTxs.length} transactions this month</div>
-              </div>
+              <ResponsiveContainer width="100%" height={120}>
+                <AreaChart data={AREA_DATA} margin={{ top:0, right:0, left:-30, bottom:0 }}>
+                  <defs>
+                    <linearGradient id="purpleGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%"  stopColor="#7C3AED" stopOpacity={0.25}/>
+                      <stop offset="95%" stopColor="#7C3AED" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <XAxis dataKey="day" tick={{ fill:'var(--text-3)', fontSize:10 }} axisLine={false} tickLine={false}/>
+                  <YAxis tick={{ fill:'var(--text-3)', fontSize:10 }} axisLine={false} tickLine={false} tickFormatter={v=>`₹${v}`}/>
+                  <Tooltip content={<ChartTooltip/>} cursor={{ stroke:'rgba(124,58,237,0.15)', strokeWidth:1 }}/>
+                  <Area type="monotone" dataKey="amt" stroke="#7C3AED" strokeWidth={2}
+                    fill="url(#purpleGrad)" dot={false} activeDot={{ r:4, fill:'#7C3AED', strokeWidth:0 }}/>
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
 
-            <div className="search-box">
-              <span className="search-icon-pos"><Search size={16}/></span>
-              <input className="search-input" placeholder="Search merchants, notes, amounts..."
-                value={searchQ} onChange={e=>setSearchQ(e.target.value)}/>
+            {/* Insight strip */}
+            <div className="insight-strip">
+              <div className="insight-strip-left">
+                <TrendingUp size={18}/>
+                Your spending insight is ready
+              </div>
+              <div className="insight-strip-badge">View →</div>
             </div>
 
-            <div className="activity-filters">
-              {(['All','Expenses','Income'] as const).map(f=>(
-                <button key={f} className={`filter-chip${txFilter===f?' active':''}`}
-                  onClick={()=>setTxFilter(f)}>{f}</button>
-              ))}
+            {/* Transactions */}
+            <div className="section-header">
+              <span className="section-title">Transactions</span>
+              <span className="section-action" onClick={()=>setPage('report')}>See all</span>
             </div>
 
-            {Object.entries(txGroups).map(([group, txs])=>{
-              const groupTotal = txs.reduce((s,t)=>s+t.amount,0);
-              return (
-                <div key={group}>
-                  <div className="tx-group-label">
-                    <span>{group}</span>
-                    <span className="tx-group-total" style={{color: groupTotal>=0?'#00d084':'#ff9999'}}>
-                      {groupTotal>=0?'+':''}{(groupTotal/100).toFixed(2).replace('-','−')} 
-                    </span>
-                  </div>
-                  {txs.map(t=>(
-                    <div key={t.id} className="tx-item">
-                      <div className="tx-logo" style={{background:t.color}}>
-                        {t.icon}
-                      </div>
+            {Object.entries(groups).map(([grp, txs]) => (
+              <div key={grp}>
+                <div className="tx-date-label">
+                  <span>{grp}</span>
+                  <span>Total {txs.reduce((s,t)=>s+t.amount,0) < 0 ? '-' : '+'}₹{Math.abs(txs.reduce((s,t)=>s+t.amount,0)/100).toFixed(2)}</span>
+                </div>
+                {txs.map((t, i) => (
+                  <div key={t.id}>
+                    <div className="tx-item">
+                      <div className="tx-logo" style={{ background: t.bg }}>{t.icon}</div>
                       <div className="tx-body">
                         <div className="tx-name">{t.name}</div>
                         <div className="tx-sub">{t.sub}</div>
                       </div>
                       <div className="tx-right">
-                        <div className={`tx-amount ${t.type}`} style={{color: t.type==='income'?'#00d084':'#f0f0f5'}}>
-                          {t.type==='income' ? '+' : ''}₹{Math.abs(t.amount/100).toLocaleString('en-IN',{minimumFractionDigits:2})}
+                        <div className={`tx-amount ${t.type}`}>
+                          {t.type==='income' ? '+' : '−'}₹{Math.abs(t.amount/100).toLocaleString('en-IN', { minimumFractionDigits:2 })}
                         </div>
-                        <div className="tx-date">{t.date}</div>
                       </div>
-                      {t.type==='expense' && expenses.find(e=>e.id===t.id) && (
-                        <div style={{display:'flex',gap:'6px',marginLeft:'12px'}}>
-                          <button style={{background:'transparent',border:'1px solid rgba(245,166,35,0.3)',color:'#f5a623',padding:'4px 10px',borderRadius:'6px',cursor:'pointer',fontSize:'0.75rem',fontWeight:600, display: 'flex', alignItems: 'center', gap: '4px'}}
-                            onClick={()=>handleEditClick(expenses.find(e=>e.id===t.id)!)}><Edit3 size={12}/> Edit</button>
-                          <button style={{background:'transparent',border:'1px solid rgba(255,77,77,0.3)',color:'#ff4d4d',padding:'4px 10px',borderRadius:'6px',cursor:'pointer',fontSize:'0.75rem',fontWeight:600, display: 'flex', alignItems: 'center', gap: '4px'}}
-                            onClick={()=>handleDelete(t.id)}><Trash2 size={12}/> Del</button>
-                        </div>
-                      )}
                     </div>
-                  ))}
-                </div>
-              );
-            })}
+                    {i < txs.length-1 && <div className="tx-divider"/>}
+                  </div>
+                ))}
+              </div>
+            ))}
+
+            {/* Real expenses */}
+            {expenses.length > 0 && (
+              <div>
+                <div className="tx-date-label"><span>My Records</span></div>
+                {expenses.map((e, i) => {
+                  const cat = getCat(e.category);
+                  return (
+                    <div key={e.id}>
+                      <div className="tx-item">
+                        <div className="tx-logo" style={{ background: cat.color + '22' }}>{cat.icon}</div>
+                        <div className="tx-body">
+                          <div className="tx-name">{e.description}</div>
+                          <div className="tx-sub">{e.category}</div>
+                        </div>
+                        <div className="tx-right">
+                          <div className="tx-amount expense">−₹{parseFloat(e.amount).toLocaleString('en-IN', { minimumFractionDigits:2 })}</div>
+                        </div>
+                        <div style={{ display:'flex', gap:'6px', marginLeft:'8px' }}>
+                          <button onClick={()=>{ setEditId(e.id); setFAmt(e.amount); setFCat(e.category); setFDesc(e.description); setFDate(e.expense_date.split('T')[0]); setShowAdd(true); }}
+                            style={{ background:'transparent', border:'1px solid var(--border)', color:'var(--text-2)', padding:'3px 8px', borderRadius:'var(--r-sm)', cursor:'pointer', display:'flex', alignItems:'center', gap:'3px', fontSize:'0.72rem' }}>
+                            <Edit3 size={11}/>
+                          </button>
+                          <button onClick={()=>handleDelete(e.id)}
+                            style={{ background:'transparent', border:'1px solid var(--border)', color:'var(--red)', padding:'3px 8px', borderRadius:'var(--r-sm)', cursor:'pointer', display:'flex', alignItems:'center', gap:'3px', fontSize:'0.72rem' }}>
+                            <Trash2 size={11}/>
+                          </button>
+                        </div>
+                      </div>
+                      {i < expenses.length-1 && <div className="tx-divider"/>}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </>
         )}
 
-        {/* ════════ INSIGHTS PAGE ════════ */}
-        {activePage === 'insights' && (
+        {/* ════ REPORT ════ */}
+        {page === 'report' && (
           <>
             <div className="page-header">
               <div>
-                <div className="page-title">Insights</div>
-                <div className="page-subtitle">Your financial health at a glance</div>
+                <div className="page-title">Reports</div>
+                <div className="page-subtitle">September 2026</div>
               </div>
             </div>
 
-            {/* Monthly bar chart */}
-            <div className="card" style={{marginBottom:'14px'}}>
-              <div className="card-label">Monthly Spending — Last 6 Months</div>
-              <ResponsiveContainer width="100%" height={180}>
-                <BarChart data={BAR_DATA} margin={{top:10,right:0,left:-20,bottom:0}}>
-                  <XAxis dataKey="month" tick={{fill:'#55556a',fontSize:12}} axisLine={false} tickLine={false}/>
-                  <YAxis tick={{fill:'#55556a',fontSize:11}} axisLine={false} tickLine={false}
-                    tickFormatter={v=>`₹${(v/1000).toFixed(0)}k`}/>
+            <div className="tab-row">
+              <button className={`tab-btn${reportTab==='expenses'?' active':''}`} onClick={()=>setRepTab('expenses')}>Expenses</button>
+              <button className={`tab-btn${reportTab==='income'?' active':''}`}   onClick={()=>setRepTab('income')}>Income</button>
+            </div>
+
+            {/* Donut */}
+            <div className="report-donut-wrap">
+              <ResponsiveContainer width={200} height={200}>
+                <PieChart>
+                  <Pie data={donutData} dataKey="value" innerRadius={60} outerRadius={90} paddingAngle={3} stroke="none">
+                    {donutData.map((d, i) => <Cell key={i} fill={d.color}/>)}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="report-donut-center">
+                <div className="report-donut-label">Total Expenses</div>
+                <div className="report-donut-total">
+                  ₹{totalSpent > 0 ? (totalSpent/1000).toFixed(1)+'k' : '23.6k'}
+                </div>
+              </div>
+            </div>
+
+            <div className="report-total-row">
+              <span className="report-total-label">All Expenses</span>
+              <span className="report-total-val">Total ₹{totalSpent > 0 ? totalSpent.toLocaleString('en-IN', { maximumFractionDigits:0 }) : '23,622'}</span>
+            </div>
+
+            {CAT_REPORT.map((c, i) => (
+              <div key={c.name}>
+                <div className="cat-report-item">
+                  <div className="cat-report-top">
+                    <div className="cat-report-icon" style={{ background: c.bg, color: c.color }}>{c.icon}</div>
+                    <div className="cat-report-info">
+                      <div className="cat-report-name">{c.name}</div>
+                      <div className="cat-report-pct">{c.pct}% of total</div>
+                    </div>
+                    <div className="cat-report-right">
+                      <div className="cat-report-amt">₹{c.amt.toLocaleString('en-IN', { minimumFractionDigits:2 })}</div>
+                      <div className={`cat-report-vs ${c.isUp?'up':'down'}`}>{c.vs} vs last month</div>
+                    </div>
+                  </div>
+                  <div className="progress-bar-track">
+                    <div className="progress-bar-fill" style={{ width:`${c.pct}%`, background: c.color }}/>
+                  </div>
+                </div>
+                {i < CAT_REPORT.length-1 && <div className="cat-divider"/>}
+              </div>
+            ))}
+
+            {/* 6-month bar */}
+            <div style={{ margin:'20px 24px 0', background:'var(--bg-card)', borderRadius:'var(--r-xl)', padding:'16px', boxShadow:'var(--shadow-card)' }}>
+              <div style={{ fontSize:'0.85rem', fontWeight:700, color:'var(--text-1)', marginBottom:'12px' }}>6-Month Overview</div>
+              <ResponsiveContainer width="100%" height={160}>
+                <BarChart data={BAR_DATA} margin={{ top:4, right:0, left:-20, bottom:0 }}>
+                  <XAxis dataKey="m" tick={{ fill:'var(--text-3)', fontSize:11 }} axisLine={false} tickLine={false}/>
+                  <YAxis tick={{ fill:'var(--text-3)', fontSize:10 }} axisLine={false} tickLine={false} tickFormatter={v=>`₹${(v/1000).toFixed(0)}k`}/>
                   <Tooltip content={<ChartTooltip/>}/>
-                  <Bar dataKey="amount" radius={[6,6,0,0]}>
-                    {BAR_DATA.map((_,i)=>(
-                      <Cell key={i} fill={i===BAR_DATA.length-1?'#f5a623':'#1c1c28'}
-                        stroke={i===BAR_DATA.length-1?'none':'rgba(255,255,255,0.07)'}/>
+                  <Bar dataKey="v" radius={[5,5,0,0]}>
+                    {BAR_DATA.map((_,i) => (
+                      <Cell key={i}
+                        fill={i===BAR_DATA.length-1 ? '#7C3AED' : 'var(--bg-elevated)'}
+                        stroke={i===BAR_DATA.length-1 ? 'none' : 'var(--border)'}/>
                     ))}
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </div>
+          </>
+        )}
 
-            <div className="insights-grid">
-              <div className="stat-card">
-                <div className="stat-card-label">Avg. Daily Spend</div>
-                <div className="stat-card-val">₹{totalSpent>0 ? Math.round(totalSpent/30).toLocaleString('en-IN') : '787'}</div>
-                <div className="stat-card-sub">Based on current month</div>
+        {/* ════ PLAN ════ */}
+        {page === 'plan' && (
+          <>
+            <div className="page-header">
+              <div>
+                <div className="page-title">My Plan</div>
+                <div className="page-subtitle">Goals & budgets at a glance</div>
               </div>
-              <div className="stat-card">
-                <div className="stat-card-label">Largest Category</div>
-                <div className="stat-card-val">
-                  {summary.breakdown[0]?.category ?? 'Bills'}
-                </div>
-                <div className="stat-card-sub">
-                  ₹{summary.breakdown[0]
-                    ? summary.breakdown[0].total.toLocaleString('en-IN',{maximumFractionDigits:0})
-                    : '11,340'} this month
-                </div>
-              </div>
-              <div className="stat-card">
-                <div className="stat-card-label">Savings Rate</div>
-                <div className="stat-card-val" style={{color:'#00d084'}}>
-                  {totalSpent > 0
-                    ? Math.max(0, Math.round((1 - totalSpent / DUMMY_INCOME) * 100)) + '%'
-                    : '62%'}
-                </div>
-                <div className="stat-card-sub">Of monthly income saved</div>
-              </div>
-              <div className="stat-card">
-                <div className="stat-card-label">Health Score</div>
-                <div className="health-ring-wrap">
-                  <div className="health-score-num" style={{color:'#00d084'}}>82</div>
-                  <div>
-                    <div className="health-score-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>Strong <TrendingUp size={16} color="#00d084"/></div>
-                    <div className="health-score-sub">▲ 4 pts this month</div>
+              <button style={{ background:'var(--purple-dim)', border:'none', borderRadius:'var(--r-md)', padding:'7px 13px', display:'flex', alignItems:'center', gap:'6px', color:'var(--purple)', fontWeight:700, fontSize:'0.82rem', cursor:'pointer' }}>
+                <Plus size={14}/> Add
+              </button>
+            </div>
+
+            {/* Goals */}
+            <div className="section-header" style={{ paddingTop:0 }}>
+              <span className="section-title">Goals</span>
+              <span className="section-action">View All</span>
+            </div>
+            {GOALS.map(g => {
+              const pct = Math.round((g.saved/g.target)*100);
+              return (
+                <div key={g.name} className="plan-goal-item">
+                  <div className="plan-goal-top">
+                    <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
+                      <div className="plan-goal-icon" style={{ background: g.bg, color: g.color }}>{g.icon}</div>
+                      <div>
+                        <div className="plan-goal-name">{g.name}</div>
+                        <div className="plan-goal-sub">View All</div>
+                      </div>
+                    </div>
+                    <Target size={16} color="var(--text-3)" style={{ cursor:'pointer' }}/>
                   </div>
+                  <div className="plan-goal-amount">₹{g.saved.toLocaleString('en-IN')}.00</div>
+                  <div className="plan-goal-of">Out of ₹{g.target.toLocaleString('en-IN')}.00</div>
+                  <div className="plan-progress-track">
+                    <div className="plan-progress-fill" style={{ width:`${pct}%`, background: g.color }}/>
+                  </div>
+                  <div className="plan-progress-row">
+                    <span>Your Progress</span>
+                    <span>₹{(g.target-g.saved).toLocaleString('en-IN')} left</span>
+                  </div>
+                  {g.alert && (
+                    <div className="plan-alert">
+                      <AlertCircle size={14}/> You're {100-pct}% behind schedule
+                    </div>
+                  )}
                 </div>
-              </div>
+              );
+            })}
+
+            {/* Budgets */}
+            <div className="section-header">
+              <span className="section-title">Budgets</span>
+              <span className="section-action">View All</span>
+            </div>
+            <div style={{ background:'var(--bg-card)', margin:'0 24px', borderRadius:'var(--r-xl)', boxShadow:'var(--shadow-card)', overflow:'hidden' }}>
+              {BUDGETS.map((b, i) => {
+                const pct = Math.round((b.spent/b.budget)*100);
+                return (
+                  <div key={b.name}>
+                    <div className="plan-budget-item">
+                      <div className="plan-budget-icon" style={{ background: b.bg, color: b.color }}>{b.icon}</div>
+                      <div className="plan-budget-info">
+                        <div className="plan-budget-name">{b.name}</div>
+                        <div className="plan-budget-sub">₹{b.spent.toLocaleString('en-IN')} of ₹{b.budget.toLocaleString('en-IN')}</div>
+                      </div>
+                      <div className="plan-budget-pct" style={{ color: b.color, borderColor: b.color, fontSize:'0.7rem', fontWeight:700, width:40, height:40, borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', border:`3px solid ${b.color}22`, background:`${b.color}11` }}>
+                        {pct}%
+                      </div>
+                    </div>
+                    {i < BUDGETS.length-1 && <div style={{ height:1, background:'var(--border)', margin:'0 16px' }}/>}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Stats row */}
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'12px', margin:'16px 24px 0' }}>
+              {[
+                { label:'Avg Daily Spend', val:`₹${totalSpent>0?Math.round(totalSpent/30).toLocaleString('en-IN'):'787'}`, sub:'This month', color:'var(--purple)' },
+                { label:'Savings Rate',    val: totalSpent>0 ? `${Math.max(0,Math.round((1-totalSpent/DUMMY_INCOME)*100))}%` : '62%', sub:'Of income saved', color:'var(--green)' },
+              ].map(s => (
+                <div key={s.label} style={{ background:'var(--bg-card)', borderRadius:'var(--r-xl)', padding:'16px', boxShadow:'var(--shadow-card)' }}>
+                  <div style={{ fontSize:'0.68rem', fontWeight:600, color:'var(--text-3)', marginBottom:'8px' }}>{s.label}</div>
+                  <div style={{ fontSize:'1.4rem', fontWeight:800, letterSpacing:'-0.8px', color: s.color }}>{s.val}</div>
+                  <div style={{ fontSize:'0.72rem', color:'var(--text-3)', marginTop:'4px' }}>{s.sub}</div>
+                </div>
+              ))}
             </div>
           </>
         )}
 
-        {/* ════════ PROFILE PAGE ════════ */}
-        {activePage === 'profile' && (
+        {/* ════ SETTINGS ════ */}
+        {page === 'settings' && (
           <>
             <div className="page-header">
               <div>
-                <div className="page-title">Profile & Settings</div>
-                <div className="page-subtitle">Manage your account preferences</div>
+                <div className="page-title">Profile</div>
+                <div className="page-subtitle">Account & preferences</div>
               </div>
             </div>
 
-            <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--blue), var(--violet))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', fontWeight: 700, color: 'white', flexShrink: 0 }}>
-                {authEmail ? authEmail[0].toUpperCase() : 'U'}
-              </div>
+            <div className="profile-card">
+              <div className="profile-avatar">{authEmail?.[0]?.toUpperCase()||'U'}</div>
               <div>
-                <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-1)' }}>{authEmail || 'My Account'}</div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-2)', marginTop: '2px' }}>Free Plan</div>
+                <div className="profile-name">{authEmail || 'My Account'}</div>
+                <div className="profile-plan">Free Plan · FinTrack</div>
               </div>
             </div>
 
-            <div className="card" style={{ marginBottom: '14px', padding: 0, overflow: 'hidden' }}>
-              <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)', fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '1px' }}>Preferences</div>
-              
-              <div className="settings-row">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}><Settings size={18} color="var(--text-2)"/> General Settings</div>
-                <div style={{ color: 'var(--text-3)' }}>&gt;</div>
-              </div>
-              <div className="settings-row">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}><Bell size={18} color="var(--text-2)"/> Notifications</div>
-                <div style={{ color: 'var(--text-3)' }}>&gt;</div>
-              </div>
-              <div className="settings-row">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}><Shield size={18} color="var(--text-2)"/> Privacy & Security</div>
-                <div style={{ color: 'var(--text-3)' }}>&gt;</div>
+            {/* Theme toggle card */}
+            <div className="settings-section">
+              <div className="settings-section-title">Appearance</div>
+              <div className="settings-card">
+                <div className="settings-row" onClick={()=>setTheme(t=>t==='dark'?'light':'dark')}>
+                  <div className="settings-row-left">
+                    <div className="settings-row-icon" style={{ background:'var(--bg-elevated)', color:'var(--text-2)' }}>
+                      {theme==='dark'?<Sun size={15}/>:<Moon size={15}/>}
+                    </div>
+                    {theme==='dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                  </div>
+                  <span style={{ fontSize:'0.78rem', fontWeight:600, color:'var(--purple)' }}>Toggle</span>
+                </div>
               </div>
             </div>
 
-            <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-               <button onClick={handleLogout} style={{ width: '100%', padding: '20px 24px', background: 'transparent', border: 'none', color: 'var(--red)', fontSize: '1rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', textAlign: 'left' }}>
-                 <LogOut size={20}/> Sign Out
-               </button>
+            <div className="settings-section">
+              <div className="settings-section-title">Account</div>
+              <div className="settings-card">
+                {[
+                  { label:'General Settings', icon:<Settings size={15}/>, bg:'var(--blue-dim)', color:'var(--blue)' },
+                  { label:'Privacy & Security', icon:<Shield size={15}/>, bg:'var(--green-dim)', color:'var(--green)' },
+                ].map(r => (
+                  <div key={r.label} className="settings-row">
+                    <div className="settings-row-left">
+                      <div className="settings-row-icon" style={{ background: r.bg, color: r.color }}>{r.icon}</div>
+                      {r.label}
+                    </div>
+                    <span style={{ color:'var(--text-3)', fontSize:'0.82rem' }}>›</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="settings-section">
+              <div className="settings-section-title">Danger Zone</div>
+              <div className="settings-card">
+                <button onClick={logout} style={{ width:'100%', padding:'14px 18px', background:'transparent', border:'none', color:'var(--red)', fontSize:'0.87rem', fontWeight:600, display:'flex', alignItems:'center', gap:'10px', cursor:'pointer', textAlign:'left' }}>
+                  <div className="settings-row-icon" style={{ background:'var(--red-dim)', color:'var(--red)' }}><LogOut size={15}/></div>
+                  Sign Out
+                </button>
+              </div>
             </div>
           </>
         )}
       </main>
 
-      {/* ── FAB ── */}
-      <button className="fab" onClick={()=>setShowAdd(true)} title="Add expense"><Plus size={28} strokeWidth={2.5}/></button>
+      {/* ══ Desktop FAB ══ */}
+      <button className="fab-desktop" onClick={()=>setShowAdd(true)} title="Add expense">
+        <Plus size={22} strokeWidth={2.5}/>
+      </button>
 
-      {/* ── Add / Edit Panel ── */}
+      {/* ══ Mobile bottom nav ══ */}
+      <nav className="bottom-nav">
+        <div className="bottom-nav-inner">
+          {NAV.slice(0,2).map(item => (
+            <button key={item.id} className={`bottom-nav-item${page===item.id?' active':''}`} onClick={()=>setPage(item.id)}>
+              {item.icon}
+              {item.label}
+            </button>
+          ))}
+          <div className="fab-wrap">
+            <button className="fab" onClick={()=>setShowAdd(true)}>
+              <Plus size={22} strokeWidth={2.5}/>
+            </button>
+          </div>
+          {NAV.slice(2).map(item => (
+            <button key={item.id} className={`bottom-nav-item${page===item.id?' active':''}`} onClick={()=>setPage(item.id)}>
+              {item.icon}
+              {item.label}
+            </button>
+          ))}
+        </div>
+      </nav>
+
+      {/* ══ Add / Edit panel ══ */}
       {showAdd && (
         <div className="add-overlay" onClick={e=>{ if(e.target===e.currentTarget) resetForm(); }}>
           <div className="add-panel">
             <div className="add-panel-header">
               <span className="add-panel-title">{editingId ? 'Edit Expense' : 'New Transaction'}</span>
-              <button className="close-btn" onClick={resetForm}><X size={18}/></button>
+              <button className="close-btn" onClick={resetForm}><X size={16}/></button>
             </div>
 
             <div className="type-toggle">
@@ -611,46 +712,34 @@ export default function App() {
             </div>
 
             <div className="amount-display">
-              {fAmount
-                ? <><span className="cur-sym">₹</span>{parseFloat(fAmount).toLocaleString('en-IN')}</>
-                : <span className="placeholder">₹0</span>
-              }
+              {fAmt ? <><span className="cur-sym">₹</span>{parseFloat(fAmt).toLocaleString('en-IN')}</> : <span className="placeholder">₹ 0</span>}
             </div>
 
             <form onSubmit={handleSave}>
               <div className="field-row">
                 <label className="field-label">Amount</label>
-                <input className="field-input" type="number" step="0.01" min="0"
-                  placeholder="Enter amount" value={fAmount} onChange={e=>setFAmount(e.target.value)} required/>
+                <input className="field-input" type="number" step="0.01" min="0" placeholder="0.00" value={fAmt} onChange={e=>setFAmt(e.target.value)} required/>
               </div>
-
               <div className="field-row">
                 <label className="field-label">Category</label>
                 <div className="cat-chips">
                   {CATEGORIES.map(c=>(
-                    <button key={c.name} type="button"
-                      className={`cat-chip${fCategory===c.name?' sel':''}`}
-                      onClick={()=>setFCategory(c.name)}>
+                    <button key={c.name} type="button" className={`cat-chip${fCat===c.name?' sel':''}`} onClick={()=>setFCat(c.name)}>
                       {c.icon} {c.name}
                     </button>
                   ))}
                 </div>
               </div>
-
               <div className="field-row">
                 <label className="field-label">Description</label>
-                <input className="field-input" type="text" placeholder="What did you spend on?"
-                  value={fDesc} onChange={e=>setFDesc(e.target.value)} required/>
+                <input className="field-input" type="text" placeholder="What did you spend on?" value={fDesc} onChange={e=>setFDesc(e.target.value)} required/>
               </div>
-
               <div className="field-row">
                 <label className="field-label">Date</label>
-                <input className="field-input" type="date"
-                  value={fDate} onChange={e=>setFDate(e.target.value)} required/>
+                <input className="field-input" type="date" value={fDate} onChange={e=>setFDate(e.target.value)} required/>
               </div>
-
-              <button type="submit" className="save-btn" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                {editingId ? <><Save size={18}/> Save Changes</> : <><CheckCircle2 size={18}/> Add Transaction</>}
+              <button type="submit" className="save-btn" style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:'8px' }}>
+                {editingId ? <><Save size={16}/> Save Changes</> : <><CheckCircle2 size={16}/> Add Transaction</>}
               </button>
             </form>
           </div>
