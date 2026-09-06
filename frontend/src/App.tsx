@@ -272,33 +272,21 @@ export default function App() {
       {/* ══ Page content ══ */}
       <main className="page-content">
 
-        {/* Mobile top-bar */}
-        <div className="topbar">
-          <div style={{ display:'flex', alignItems:'center', gap:'9px' }}>
-            <div style={{ width:28, height:28, background:'var(--hero-grad)', borderRadius:'var(--r-sm)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 2px 10px rgba(124,58,237,0.3)' }}>
-              <Wallet size={15} color="#fff"/>
-            </div>
-            <span className="topbar-title">FinTrack</span>
-          </div>
-          <div className="topbar-actions">
-            <button style={{ background:'var(--bg-surface)', border:'1px solid var(--border)', borderRadius:'var(--r-md)', padding:'6px 10px', display:'flex', alignItems:'center', gap:'6px', cursor:'pointer', color:'var(--text-2)', fontSize:'0.75rem', fontWeight:600 }} onClick={()=>setPage('settings')}>
-              <User size={14}/> Account
-            </button>
-          </div>
-        </div>
-
         {/* ════ HOME ════ */}
         {page === 'home' && (
           <>
             {/* Hero */}
             <div className="hero-section">
               <div className="hero-toprow">
-                <div className="hero-user-row">
-                  <div className="hero-avatar">{authEmail?.[0]?.toUpperCase()||'U'}</div>
-                  <button className="hero-month-pill">
-                    September 2026 <ChevronDown size={12}/>
-                  </button>
+                <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
+                  <div style={{ width:28, height:28, background:'rgba(255,255,255,0.2)', borderRadius:'var(--r-sm)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                    <Wallet size={15} color="#fff"/>
+                  </div>
+                  <span style={{ fontSize:'1.1rem', fontWeight:800, color:'#fff', letterSpacing:'-0.4px' }}>FinTrack</span>
                 </div>
+                <button className="hero-month-pill">
+                  September 2026 <ChevronDown size={12}/>
+                </button>
               </div>
               <p className="hero-balance-label">Current Balance</p>
               <div className="hero-balance">
