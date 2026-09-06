@@ -206,9 +206,6 @@ export default function App() {
           <div className="auth-logo-mark"><Wallet size={18} color="#fff"/></div>
           <span className="auth-logo-name">FinTrack</span>
         </div>
-        <div style={{ display:'flex', justifyContent:'flex-end', marginBottom:'24px' }}>
-          <ThemeToggle/>
-        </div>
         <h1 className="auth-h1">{isLogin ? 'Welcome back' : 'Get started'}</h1>
         <p className="auth-sub">{isLogin ? 'Sign in to your finance dashboard.' : 'Create your private expense tracker.'}</p>
         {authError && <div className="auth-error">{authError}</div>}
@@ -277,13 +274,15 @@ export default function App() {
 
         {/* Mobile top-bar */}
         <div className="topbar">
-          <span className="topbar-title">
-            {page==='home' ? 'Overview' : page==='report' ? 'Reports' : page==='plan' ? 'My Plan' : 'Profile'}
-          </span>
+          <div style={{ display:'flex', alignItems:'center', gap:'9px' }}>
+            <div style={{ width:28, height:28, background:'var(--hero-grad)', borderRadius:'var(--r-sm)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 2px 10px rgba(124,58,237,0.3)' }}>
+              <Wallet size={15} color="#fff"/>
+            </div>
+            <span className="topbar-title">FinTrack</span>
+          </div>
           <div className="topbar-actions">
-            <ThemeToggle/>
-            <button style={{ background:'var(--bg-surface)', border:'1px solid var(--border)', borderRadius:'50%', width:34, height:34, display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', color:'var(--text-2)' }}>
-              <Bell size={16}/>
+            <button style={{ background:'var(--bg-surface)', border:'1px solid var(--border)', borderRadius:'var(--r-md)', padding:'6px 10px', display:'flex', alignItems:'center', gap:'6px', cursor:'pointer', color:'var(--text-2)', fontSize:'0.75rem', fontWeight:600 }} onClick={()=>setPage('settings')}>
+              <User size={14}/> Account
             </button>
           </div>
         </div>
@@ -300,7 +299,6 @@ export default function App() {
                     September 2026 <ChevronDown size={12}/>
                   </button>
                 </div>
-                <button className="hero-bell"><Bell size={16}/></button>
               </div>
               <p className="hero-balance-label">Current Balance</p>
               <div className="hero-balance">
