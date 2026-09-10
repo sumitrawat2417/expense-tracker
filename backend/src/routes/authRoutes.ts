@@ -1,12 +1,12 @@
 import express from 'express';
 import { authController } from '../controllers/authController.js';
-import { authMiddleware } from '../middleware/auth.js';
+import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
 router.post('/register', authController.register);
 router.post('/login', authController.login);
-router.get('/profile', authMiddleware, authController.getProfile);
-router.put('/profile', authMiddleware, authController.updateProfile);
+router.get('/profile', authenticateToken, authController.getProfile);
+router.put('/profile', authenticateToken, authController.updateProfile);
 
 export default router;

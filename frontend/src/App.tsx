@@ -6,8 +6,8 @@ import {
 } from 'recharts';
 import {
   Home, BarChart2, Layers, User, Plus, X,
-  Sun, Moon, Bell, ChevronDown, TrendingUp, TrendingDown,
-  Coffee, Bus, Utensils, ShoppingCart, Car, Paintbrush,
+  Sun, Moon, ChevronDown, TrendingUp,
+  Coffee, Bus, ShoppingCart, Car, Paintbrush,
   HandCoins, GraduationCap, Pill, Pizza, Ticket, Zap,
   ShoppingBag, HeartPulse, BookOpen, Package,
   Edit3, Trash2, Save, CheckCircle2, Settings, Shield, LogOut,
