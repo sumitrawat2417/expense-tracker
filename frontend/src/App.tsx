@@ -100,6 +100,7 @@ export default function App() {
   const [token,     setToken]    = useState<string|null>(localStorage.getItem('token'));
   const [isLogin,   setIsLogin]  = useState(true);
   const [authEmail, setEmail]    = useState('');
+  const [authName,  setAuthName] = useState('');
   const [authPass,  setPass]     = useState('');
   const [authError, setError]    = useState('');
 
@@ -111,6 +112,7 @@ export default function App() {
   const [page,       setPage]    = useState<'home'|'report'|'plan'|'settings'>('home');
   const [theme,      setTheme]   = useState<'dark'|'light'>(() => (localStorage.getItem('theme') as any) || 'dark');
   const [showAdd,    setShowAdd] = useState(false);
+  const [showEditProfile, setShowEditProfile] = useState(false);
   const [reportTab,  setRepTab]  = useState<'expenses'|'income'>('expenses');
   const [editingId,  setEditId]  = useState<string|null>(null);
 
@@ -120,6 +122,7 @@ export default function App() {
   const [fDesc, setFDesc] = useState('');
   const [fDate, setFDate] = useState('');
   const [fType, setFType] = useState<'Expense'|'Income'>('Expense');
+  const [fName, setFName] = useState('');
 
   // Apply theme
   useEffect(() => {
@@ -127,9 +130,17 @@ export default function App() {
     localStorage.setItem('theme', theme);
   }, [theme]);
 
-  useEffect(() => { if (token) { fetchExp(); fetchSum(); } }, [token]);
+  useEffect(() => { if (token) { fetchExp(); fetchSum(); fetchProfile(); } }, [token]);
 
   const authH = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${token}` });
+
+  const fetchProfile = () => {
+    if (!token) return;
+    fetch('http://localhost:3000/api/auth/profile', { headers: authH() })
+      .then(r => { if (r.status === 401) logout(); return r.json(); })
+      .then(d => { if (d.user) { setEmail(d.user.email); setAuthName(d.user.name || ''); setFName(d.user.name || ''); } })
+      .catch(console.error);
+  };
 
   const fetchSum = () => {
     if (!token) return;
@@ -153,11 +164,11 @@ export default function App() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       localStorage.setItem('token', data.token);
-      setToken(data.token); setEmail(''); setPass('');
+      setToken(data.token); setEmail(data.user?.email || authEmail); setAuthName(data.user?.name || ''); setFName(data.user?.name || ''); setPass('');
     } catch (err: any) { setError(err.message); }
   };
 
-  const logout = () => { localStorage.removeItem('token'); setToken(null); setExpenses([]); setSummary({ total: 0, breakdown: [] }); };
+  const logout = () => { localStorage.removeItem('token'); setToken(null); setExpenses([]); setSummary({ total: 0, breakdown: [] }); setAuthName(''); };
 
   const resetForm = () => { setFAmt(''); setFCat('Food'); setFDesc(''); setFDate(''); setEditId(null); setShowAdd(false); };
 
@@ -168,6 +179,21 @@ export default function App() {
     try {
       const res = await fetch(url, { method: editingId ? 'PUT' : 'POST', headers: authH(), body });
       if (res.ok) { resetForm(); fetchExp(); fetchSum(); }
+    } catch (err) { console.error(err); }
+  };
+
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch('http://localhost:3000/api/auth/profile', {
+        method: 'PUT', headers: authH(),
+        body: JSON.stringify({ name: fName })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setAuthName(data.user.name);
+        setShowEditProfile(false);
+      }
     } catch (err) { console.error(err); }
   };
 
@@ -262,8 +288,8 @@ export default function App() {
         <div className="sidebar-bottom">
           <div style={{ marginBottom:'10px' }}><ThemeToggle/></div>
           <div className="sidebar-user" onClick={logout} title="Sign out">
-            <div className="user-avatar">{authEmail?.[0]?.toUpperCase()||'U'}</div>
-            <span className="user-email">{authEmail || 'My Account'}</span>
+            <div className="user-avatar">{authName?.[0]?.toUpperCase() || authEmail?.[0]?.toUpperCase() || 'U'}</div>
+            <span className="user-email">{authName || authEmail || 'My Account'}</span>
             <span className="signout-icon"><LogOut size={14}/></span>
           </div>
         </div>
@@ -600,11 +626,14 @@ export default function App() {
             </div>
 
             <div className="profile-card">
-              <div className="profile-avatar">{authEmail?.[0]?.toUpperCase()||'U'}</div>
-              <div>
-                <div className="profile-name">{authEmail || 'My Account'}</div>
+              <div className="profile-avatar">{authName?.[0]?.toUpperCase() || authEmail?.[0]?.toUpperCase() || 'U'}</div>
+              <div style={{ flex: 1 }}>
+                <div className="profile-name">{authName || authEmail || 'My Account'}</div>
                 <div className="profile-plan">Free Plan · FinTrack</div>
               </div>
+              <button onClick={() => setShowEditProfile(true)} style={{ background:'var(--bg-surface)', border:'1px solid var(--border)', borderRadius:'var(--r-md)', padding:'6px 10px', display:'flex', alignItems:'center', gap:'6px', cursor:'pointer', color:'var(--text-2)', fontSize:'0.75rem', fontWeight:600 }}>
+                <Edit3 size={14}/> Edit
+              </button>
             </div>
 
             {/* Theme toggle card */}
@@ -726,6 +755,32 @@ export default function App() {
               </div>
               <button type="submit" className="save-btn" style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:'8px' }}>
                 {editingId ? <><Save size={16}/> Save Changes</> : <><CheckCircle2 size={16}/> Add Transaction</>}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ══ Edit Profile panel ══ */}
+      {showEditProfile && (
+        <div className="add-overlay" onClick={e=>{ if(e.target===e.currentTarget) setShowEditProfile(false); }}>
+          <div className="add-panel">
+            <div className="add-panel-header">
+              <span className="add-panel-title">Edit Profile</span>
+              <button className="close-btn" onClick={()=>setShowEditProfile(false)}><X size={16}/></button>
+            </div>
+
+            <form onSubmit={handleSaveProfile}>
+              <div className="field-row">
+                <label className="field-label">Name</label>
+                <input className="field-input" type="text" placeholder="Your name" value={fName} onChange={e=>setFName(e.target.value)} required/>
+              </div>
+              <div className="field-row">
+                <label className="field-label">Email (Read Only)</label>
+                <input className="field-input" type="email" value={authEmail} disabled style={{ opacity: 0.6 }}/>
+              </div>
+              <button type="submit" className="save-btn" style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:'8px', marginTop: '20px' }}>
+                <Save size={16}/> Save Profile
               </button>
             </form>
           </div>
