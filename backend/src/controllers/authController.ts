@@ -40,5 +40,42 @@ export const authController = {
         res.status(500).json({ error: 'Internal server error.' });
       }
     }
+  },
+
+  getProfile: async (req: Request, res: Response) => {
+    try {
+      // The auth middleware sets req.user
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+      }
+      const user = await userRepository.getUserById(userId);
+      if (!user) {
+        res.status(404).json({ error: 'User not found' });
+        return;
+      }
+      res.status(200).json({ user });
+    } catch (error) {
+      console.error('Get profile error:', error);
+      res.status(500).json({ error: 'Internal server error.' });
+    }
+  },
+
+  updateProfile: async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+      }
+      
+      const { name } = req.body;
+      const updatedUser = await userRepository.updateProfile(userId, name);
+      res.status(200).json({ user: updatedUser });
+    } catch (error) {
+      console.error('Update profile error:', error);
+      res.status(500).json({ error: 'Internal server error.' });
+    }
   }
 };
