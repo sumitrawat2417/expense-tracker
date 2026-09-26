@@ -323,18 +323,19 @@ input, select, button, textarea { font-family: inherit; }
 
 /* ── Insight promo strip ── */
 .insight-strip {
-  margin: 16px 24px 0;
-  background: var(--text-1);
-  border-radius: var(--r-lg);
-  padding: 14px 16px;
+  margin: 20px 24px 10px;
+  background: var(--purple-dim);
+  border: 1px solid rgba(124,58,237, 0.2);
+  border-radius: var(--r-xl);
+  padding: 14px 18px;
   display: flex; align-items: center; justify-content: space-between;
   cursor: pointer; transition: opacity .15s;
 }
 .insight-strip:hover { opacity: 0.9; }
-.insight-strip-left { display: flex; align-items: center; gap: 10px; color: var(--bg-card); font-size: 0.85rem; font-weight: 600; }
+.insight-strip-left { display: flex; align-items: center; gap: 10px; color: var(--purple); font-size: 0.85rem; font-weight: 600; }
 .insight-strip-badge {
   background: var(--purple); color: white;
-  padding: 3px 10px; border-radius: var(--r-pill);
+  padding: 5px 12px; border-radius: var(--r-pill);
   font-size: 0.72rem; font-weight: 700; white-space: nowrap;
 }
 
@@ -620,6 +621,7 @@ input, select, button, textarea { font-family: inherit; }
 .bottom-nav-inner {
   display: flex; align-items: center; justify-content: space-around;
   height: 100%; max-width: 480px; margin: 0 auto; padding: 0 8px;
+  position: relative;
 }
 .bottom-nav-item {
   display: flex; flex-direction: column; align-items: center; gap: 3px;
@@ -632,7 +634,7 @@ input, select, button, textarea { font-family: inherit; }
 
 .fab-wrap { flex: 1; display: flex; align-items: center; justify-content: center; }
 .fab {
-  position: absolute; bottom: calc(var(--nav-h) - 20px);
+  position: absolute; top: -20px;
   left: 50%; transform: translateX(-50%);
   width: 52px; height: 52px; border-radius: 50%;
   background: var(--purple); color: white; border: none;
@@ -701,7 +703,7 @@ input, select, button, textarea { font-family: inherit; }
   .settings-card { margin: 0 18px; }
   .settings-section-title { padding: 0 18px; }
   .profile-card { margin: 0 18px 16px; }
-  .insight-strip { margin: 12px 18px 0; }
+  .insight-strip { margin: 16px 18px 8px; }
   .hero-section { border-radius: 0 0 var(--r-2xl) var(--r-2xl); }
 }
 
