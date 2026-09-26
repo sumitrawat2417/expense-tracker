@@ -490,15 +490,22 @@ input, select, button, textarea { font-family: inherit; }
   font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
   color: var(--text-3); padding: 0 24px; margin-bottom: 6px;
 }
-.settings-card { background: var(--bg-card); margin: 0 24px; border-radius: var(--r-xl); box-shadow: var(--shadow-card); overflow: hidden; }
+.settings-card { 
+  background: var(--bg-card); 
+  margin: 0 24px; 
+  border-radius: var(--r-xl); 
+  box-shadow: var(--shadow-card); 
+  overflow: hidden; 
+  border: 1px solid var(--border-2);
+}
 .settings-row {
   display: flex; justify-content: space-between; align-items: center;
-  padding: 14px 18px; border-bottom: 1px solid var(--border);
-  font-size: 0.87rem; font-weight: 500; color: var(--text-1);
-  cursor: pointer; transition: background .15s;
+  padding: 16px 20px; border-bottom: 1px solid var(--border-2);
+  font-size: 0.9rem; font-weight: 600; color: var(--text-1);
+  cursor: pointer; transition: all .25s cubic-bezier(0.16,1,0.3,1);
 }
 .settings-row:last-child { border-bottom: none; }
-.settings-row:hover { background: var(--bg-surface); }
+.settings-row:hover { background: var(--bg-surface); padding-left: 24px; }
 .settings-row-left { display: flex; align-items: center; gap: 11px; }
 .settings-row-icon {
   width: 30px; height: 30px; border-radius: var(--r-sm);
@@ -506,22 +513,23 @@ input, select, button, textarea { font-family: inherit; }
 }
 
 .profile-card {
-  margin: 0 24px 20px;
-  background: var(--bg-card);
+  margin: 0 24px 24px;
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.08) 0%, rgba(124, 58, 237, 0) 100%), var(--bg-card);
+  border: 1px solid rgba(124, 58, 237, 0.15);
   border-radius: var(--r-xl);
-  padding: 20px;
-  display: flex; align-items: center; gap: 14px;
-  box-shadow: var(--shadow-card);
+  padding: 24px;
+  display: flex; align-items: center; gap: 16px;
+  box-shadow: 0 8px 32px rgba(124, 58, 237, 0.06), var(--shadow-card);
 }
 .profile-avatar {
-  width: 52px; height: 52px; border-radius: 50%;
+  width: 56px; height: 56px; border-radius: 50%;
   background: var(--hero-grad);
   display: flex; align-items: center; justify-content: center;
-  font-size: 1.2rem; font-weight: 700; color: white; flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(124,58,237,0.35);
+  font-size: 1.3rem; font-weight: 700; color: white; flex-shrink: 0;
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.4);
 }
-.profile-name { font-size: 1rem; font-weight: 700; color: var(--text-1); margin-bottom: 3px; }
-.profile-plan { font-size: 0.78rem; color: var(--text-3); }
+.profile-name { font-size: 1.1rem; font-weight: 800; color: var(--text-1); margin-bottom: 4px; letter-spacing: -0.3px; }
+.profile-plan { font-size: 0.8rem; font-weight: 600; color: var(--purple-light); }
 
 /* ============================================================
    ADD EXPENSE PANEL

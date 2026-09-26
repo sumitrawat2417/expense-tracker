@@ -631,7 +631,7 @@ export default function App() {
                 <div className="profile-name">{authName || authEmail || 'My Account'}</div>
                 <div className="profile-plan">Free Plan · FinTrack</div>
               </div>
-              <button onClick={() => setShowEditProfile(true)} style={{ background:'var(--bg-surface)', border:'1px solid var(--border)', borderRadius:'var(--r-md)', padding:'6px 10px', display:'flex', alignItems:'center', gap:'6px', cursor:'pointer', color:'var(--text-2)', fontSize:'0.75rem', fontWeight:600 }}>
+              <button onClick={() => setShowEditProfile(true)} style={{ background:'var(--purple)', border:'none', borderRadius:'var(--r-pill)', padding:'8px 16px', display:'flex', alignItems:'center', gap:'6px', cursor:'pointer', color:'white', fontSize:'0.78rem', fontWeight:700, boxShadow:'0 4px 12px rgba(124,58,237,0.3)', transition:'all 0.2s' }}>
                 <Edit3 size={14}/> Edit
               </button>
             </div>
